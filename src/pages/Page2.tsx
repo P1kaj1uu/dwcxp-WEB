@@ -10,6 +10,8 @@ import {
   jsqImage,
   xfgImage,
   siYouImage,
+  bgImage,
+  hbgIconImage,
 } from "@/utils/images";
 
 interface TableRowData {
@@ -276,13 +278,72 @@ const Page2: React.FC = () => {
   return (
     <>
       {/* 创岗建区评比一览表 */}
-      <div className="flex flex-col" style={{ width: 720, height: 430 }}>
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {/* 标题图片 - 带黄色文字 */}
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 16,
+            flexShrink: 0,
+          }}
+        >
+          <img
+            src={hbgIconImage}
+            alt="创岗建区评区一览表"
+            style={{
+              width: "auto",
+              height: 50,
+              objectFit: "contain",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "60%",
+              left: "60%",
+              transform: "translate(-50%, -50%)",
+              fontSize: 18,
+              fontWeight: "bold",
+              color: "#fbbf24",
+              textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+              whiteSpace: "nowrap",
+              letterSpacing: 2,
+            }}
+          >
+            创岗建区评区一览表
+          </div>
+        </div>
+
         <div
           className="flex-1 rounded-lg overflow-auto"
           style={{
-            background: "rgba(250, 218, 204, 0.6)",
+            width: "720px",
+            maxHeight: "430px",
+            background:
+              "linear-gradient(to right, #fbe5d3, #fefceb, #fef1de, #f3d4c7)",
             padding: "12px",
-            minHeight: 0,
           }}
         >
           <div

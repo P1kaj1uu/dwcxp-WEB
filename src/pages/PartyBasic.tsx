@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Table, Form, Button, Space, Input, Modal, message, Popconfirm, Select, Upload } from 'antd'
-import { PlusOutlined, UploadOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, UploadOutlined, SearchOutlined, ReloadOutlined, EditOutlined } from '@ant-design/icons'
 import { getBasicListApi, getBasicByTypeApi, addBasicApi, delBasicApi, editBasicApi } from '@/api/basic'
+import { getEvaluationResultList, addEvaluationResult, editEvaluationResultById } from '@/api/evaluationResult'
 import styled from 'styled-components'
 
 const { Option } = Select
@@ -58,6 +59,13 @@ const PartyBasic: React.FC = () => {
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
   const [photoBase64, setPhotoBase64] = useState<string>('')
   const [compressing, setCompressing] = useState(false)
+
+  // 考核结果弹窗相关状态
+  const [resultModalVisible, setResultModalVisible] = useState(false)
+  const [resultForm] = Form.useForm()
+  const [resultLoading, setResultLoading] = useState(false)
+  const [currentResultId, setCurrentResultId] = useState<number | null>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
 
   useEffect(() => {
     fetchTableData()
@@ -156,6 +164,109 @@ const PartyBasic: React.FC = () => {
       photo: record.photo || undefined,
     })
     setIsModalVisible(true)
+  }
+
+  // 编辑考核结果
+  const handleEditResultModal = async () => {
+    setResultModalVisible(true)
+    setResultLoading(true)
+    
+    try {
+      // 调用接口获取考核结果数据
+      const res = await getEvaluationResultList({
+        pageNum: 1,
+        pageSize: 10,
+      })
+      
+      if (res.data.code === 200) {
+        const resultData = res.data.data
+        // 判断是否为空数组
+        if (resultData && resultData.total > 0) {
+          // 编辑模式：有数据
+          const data = resultData.list[0] // 假设返回数组，取第一条
+          setIsEditMode(true)
+          setCurrentResultId(data.id)
+          resultForm.setFieldsValue({
+            one: data.one,
+            two: data.two,
+            three: data.three,
+            four: data.four,
+            years: data.years,
+          })
+        } else {
+          // 新增模式：无数据
+          setIsEditMode(false)
+          setCurrentResultId(null)
+          resultForm.resetFields()
+        }
+      } else {
+        // 接口返回失败，按新增模式处理
+        setIsEditMode(false)
+        setCurrentResultId(null)
+        resultForm.resetFields()
+        message.warning('未找到考核结果，将创建新记录')
+      }
+    } catch (error) {
+      console.error('获取考核结果失败:', error)
+      // 出错时按新增模式处理
+      setIsEditMode(false)
+      setCurrentResultId(null)
+      resultForm.resetFields()
+      message.warning('获取考核结果失败，将创建新记录')
+    } finally {
+      setResultLoading(false)
+    }
+  }
+
+  // 提交考核结果
+  const handleResultSubmit = async () => {
+    try {
+      const values = await resultForm.validateFields()
+      
+      const submitData = {
+        one: values.one,
+        two: values.two,
+        three: values.three,
+        four: values.four,
+        years: values.years,
+      }
+      
+      let res
+      if (isEditMode && currentResultId) {
+        let obj = {
+          id: currentResultId,
+          ...submitData,
+        }
+        // 编辑模式：调用编辑接口
+        res = await editEvaluationResultById(obj)
+        if (res.data.code === 200) {
+          message.success('编辑考核结果成功')
+          setResultModalVisible(false)
+          resultForm.resetFields()
+        } else {
+          message.error(res.data.message || '编辑失败')
+        }
+      } else {
+        // 新增模式：调用新增接口
+        res = await addEvaluationResult(submitData)
+        if (res.data.code === 200) {
+          message.success('新增考核结果成功')
+          setResultModalVisible(false)
+          resultForm.resetFields()
+        } else {
+          message.error(res.data.message || '新增失败')
+        }
+      }
+    } catch (error) {
+      console.error('表单验证失败:', error)
+    }
+  }
+
+  const handleCancelResultModal = () => {
+    setResultModalVisible(false)
+    resultForm.resetFields()
+    setCurrentResultId(null)
+    setIsEditMode(false)
   }
 
   const handleCancelModal = () => {
@@ -503,6 +614,7 @@ const PartyBasic: React.FC = () => {
               <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>搜索</Button>
               <Button icon={<ReloadOutlined />} onClick={handleReset}>重置</Button>
               <Button type="primary" icon={<PlusOutlined />} onClick={handleAddModal}>新增</Button>
+              <Button type="primary" icon={<EditOutlined />} onClick={handleEditResultModal}>编辑考核本支部结果</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -526,6 +638,7 @@ const PartyBasic: React.FC = () => {
         />
       </Card>
 
+      {/* 基本情况弹窗 */}
       <Modal
         title={modalTitle}
         open={isModalVisible}
@@ -581,6 +694,60 @@ const PartyBasic: React.FC = () => {
                 </div>
               )}
             </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 考核结果弹窗 */}
+      <Modal
+        title={isEditMode ? '编辑考核本支部结果' : '新增考核本支部结果'}
+        open={resultModalVisible}
+        onOk={handleResultSubmit}
+        onCancel={handleCancelResultModal}
+        width={600}
+        okText="确定"
+        cancelText="取消"
+        confirmLoading={resultLoading}
+      >
+        <Form form={resultForm} layout="vertical">
+          <Form.Item 
+            name="years" 
+            label="上年度" 
+            rules={[{ required: true, message: '请输入上年度考核结果' }]}
+          >
+            <Input placeholder="请输入上年度考核结果" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="one" 
+            label="一季度" 
+            rules={[{ required: true, message: '请输入一季度考核结果' }]}
+          >
+            <Input placeholder="请输入一季度考核结果" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="two" 
+            label="二季度" 
+            rules={[{ required: true, message: '请输入二季度考核结果' }]}
+          >
+            <Input placeholder="请输入二季度考核结果" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="three" 
+            label="三季度" 
+            rules={[{ required: true, message: '请输入三季度考核结果' }]}
+          >
+            <Input placeholder="请输入三季度考核结果" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="four" 
+            label="四季度" 
+            rules={[{ required: true, message: '请输入四季度考核结果' }]}
+          >
+            <Input placeholder="请输入四季度考核结果" autoComplete="off" />
           </Form.Item>
         </Form>
       </Modal>

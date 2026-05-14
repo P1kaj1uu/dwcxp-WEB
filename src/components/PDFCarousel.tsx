@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { Modal, Spin } from 'antd'; // 引入 Spin 组件
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { Modal, Spin } from "antd"; // 引入 Spin 组件
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -165,48 +165,49 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
       <div
         style={{
           flex: 1,
-          border: '2px solid #c44b4c',
-          textAlign: 'center',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
+          border: "1px solid black",
+          textAlign: "center",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
           minHeight: 0,
           minWidth: 0,
-          userSelect: 'none',
-          overflow: 'hidden',
-          borderRadius: 12,
+          userSelect: "none",
+          overflow: "hidden",
         }}
       >
         {/* 标题栏 */}
-        <div
-          onClick={handleTitleClick}
-          style={{
-            padding: '8px 0',
-            fontWeight: 'bold',
-            flexShrink: 0,
-            cursor: 'pointer',
-            background: '#ba2e35',
-            color: '#facc14',
-            borderRadius: 6,
-            position: 'absolute',
-            top: '-15px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            minWidth: '90px',
-            zIndex: 1000,
-          }}
-        >
-          {title}
-        </div>
+        {title && (
+          <div
+            onClick={handleTitleClick}
+            style={{
+              padding: "8px 0",
+              fontWeight: "bold",
+              flexShrink: 0,
+              cursor: "pointer",
+              background: "#ba2e35",
+              color: "#facc14",
+              borderRadius: 6,
+              position: "absolute",
+              top: "-15px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              minWidth: "90px",
+              zIndex: 1000,
+            }}
+          >
+            {title}
+          </div>
+        )}
 
         <div
           style={{
             flex: 1,
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
             minHeight: 0,
             minWidth: 0,
           }}
@@ -217,22 +218,22 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
           {isLoading && !error && (
             <div
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
                 borderRadius: 8,
                 zIndex: 5,
               }}
             >
               <Spin size="large" />
-              <div style={{ marginTop: 12, color: '#666', fontSize: 12 }}>
+              <div style={{ marginTop: 12, color: "#666", fontSize: 12 }}>
                 加载 {title} 中...
               </div>
             </div>
@@ -240,10 +241,10 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
 
           {/* 错误状态 */}
           {error && (
-            <div style={{ color: '#ff4d4f', textAlign: 'center' }}>
+            <div style={{ color: "#ff4d4f", textAlign: "center" }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
               <div>PDF 加载失败</div>
-              <div style={{ fontSize: 12, marginTop: 4, color: '#999' }}>
+              <div style={{ fontSize: 12, marginTop: 4, color: "#999" }}>
                 请检查文件或网络连接
               </div>
             </div>
@@ -255,11 +256,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               style={{
                 width: 280,
                 height: 200,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 opacity: isLoading ? 0.3 : 1,
-                transition: 'opacity 0.3s',
+                transition: "opacity 0.3s",
               }}
             >
               <Document
@@ -269,6 +270,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 loading=""
               >
                 <Page
+                  onClick={handleTitleClick}
                   pageNumber={currentIndex + 1}
                   width={280}
                   height={200}
@@ -277,7 +279,6 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                   loading=""
                   onLoadSuccess={onPageLoadSuccess}
                   onLoadError={onPageLoadError}
-                  onClick={(e) => e.stopPropagation()}
                 />
               </Document>
             </div>
@@ -289,28 +290,28 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 onClick={handlePrev}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   left: 8,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  top: "50%",
+                  transform: "translateY(-50%)",
                   width: 28,
                   height: 28,
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.5)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
                   fontSize: 14,
                   zIndex: 10,
-                  transition: 'background 0.2s',
+                  transition: "background 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.7)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.5)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.5)";
                 }}
               >
                 <LeftOutlined />
@@ -318,39 +319,39 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 onClick={handleNext}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 8,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  top: "50%",
+                  transform: "translateY(-50%)",
                   width: 28,
                   height: 28,
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.5)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
                   fontSize: 14,
                   zIndex: 10,
-                  transition: 'background 0.2s',
+                  transition: "background 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.7)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.5)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.5)";
                 }}
               >
                 <RightOutlined />
               </div>
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   bottom: 8,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  display: 'flex',
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
                   gap: 6,
                   zIndex: 10,
                 }}
@@ -362,23 +363,26 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                     style={{
                       width: 6,
                       height: 6,
-                      borderRadius: '50%',
-                      background: idx === currentIndex ? '#1890ff' : 'rgba(255,255,255,0.6)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      borderRadius: "50%",
+                      background:
+                        idx === currentIndex
+                          ? "#1890ff"
+                          : "rgba(255,255,255,0.6)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
                     }}
                   />
                 ))}
               </div>
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   bottom: 8,
                   right: 8,
                   fontSize: 10,
-                  color: 'rgba(255,255,255,0.7)',
-                  background: 'rgba(0,0,0,0.4)',
-                  padding: '2px 6px',
+                  color: "rgba(255,255,255,0.7)",
+                  background: "rgba(0,0,0,0.4)",
+                  padding: "2px 6px",
                   borderRadius: 10,
                   zIndex: 10,
                 }}
@@ -398,40 +402,42 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
         footer={null}
         width="80%"
         style={{ maxWidth: 900 }}
-        bodyStyle={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: 500,
-          position: 'relative',
+        styles={{ 
+          body: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 500,
+            position: "relative",
+          }
         }}
       >
         {/* 弹窗 Loading */}
         {isModalLoading && (
           <div
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 10,
             }}
           >
             <Spin size="large" />
-            <div style={{ marginTop: 12, color: '#666' }}>加载文档中...</div>
+            <div style={{ marginTop: 12, color: "#666" }}>加载文档中...</div>
           </div>
         )}
 
         <div
           style={{
-            position: 'relative',
-            display: 'inline-block',
+            position: "relative",
+            display: "inline-block",
             opacity: isModalLoading ? 0.3 : 1,
-            transition: 'opacity 0.3s',
+            transition: "opacity 0.3s",
           }}
         >
           <Document
@@ -454,28 +460,28 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 onClick={handleModalPrev}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   left: -40,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  top: "50%",
+                  transform: "translateY(-50%)",
                   width: 36,
                   height: 36,
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.5)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
                   fontSize: 16,
                   zIndex: 10,
-                  transition: 'background 0.2s',
+                  transition: "background 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.7)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.5)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.5)";
                 }}
               >
                 <LeftOutlined />
@@ -483,39 +489,39 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 onClick={handleModalNext}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: -40,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  top: "50%",
+                  transform: "translateY(-50%)",
                   width: 36,
                   height: 36,
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.5)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
                   fontSize: 16,
                   zIndex: 10,
-                  transition: 'background 0.2s',
+                  transition: "background 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.7)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.5)';
+                  e.currentTarget.style.background = "rgba(0,0,0,0.5)";
                 }}
               >
                 <RightOutlined />
               </div>
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   bottom: -30,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  display: 'flex',
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
                   gap: 8,
                   zIndex: 10,
                 }}
@@ -530,23 +536,26 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                     style={{
                       width: 8,
                       height: 8,
-                      borderRadius: '50%',
-                      background: idx === modalCurrentPage ? '#1890ff' : 'rgba(0,0,0,0.3)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      borderRadius: "50%",
+                      background:
+                        idx === modalCurrentPage
+                          ? "#1890ff"
+                          : "rgba(0,0,0,0.3)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
                     }}
                   />
                 ))}
               </div>
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   bottom: -30,
                   right: 0,
                   fontSize: 12,
-                  color: '#666',
-                  background: 'rgba(0,0,0,0.05)',
-                  padding: '2px 8px',
+                  color: "#666",
+                  background: "rgba(0,0,0,0.05)",
+                  padding: "2px 8px",
                   borderRadius: 12,
                 }}
               >

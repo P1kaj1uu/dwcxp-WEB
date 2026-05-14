@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { getBasicByTypeApi } from '@/api/basic';
+import { getBasicByTypeApi } from "@/api/basic";
+import { getEvaluationResultList } from '@/api/evaluationResult'
 import {
   hbgIconImage,
-  bgImage
+  bgImage,
 } from "@/utils/images";
-import { Skeleton } from 'antd';
+import { Skeleton } from "antd";
 
 interface Member {
   id: number;
@@ -22,6 +23,7 @@ interface GroupedData {
 const Page1: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
+  const [evaluationResults, setEvaluationResults] = useState<any[]>([]);
 
   const departmentOptions = [
     { label: "党支部委员会", value: "党支部委员会" },
@@ -32,31 +34,53 @@ const Page1: React.FC = () => {
   // 骨架屏显示状态
   const [showSkeleton, setShowSkeleton] = useState(true);
 
+  const fetchEvaluationResults = async () => {
+    setLoading(true);
+    setShowSkeleton(true);
+    try {
+      const res = await getEvaluationResultList({
+        pageNum: 1,
+        pageSize: 10,
+      })
+      if (res.data.code === 200) {
+        setEvaluationResults(res.data.data.list || []);
+      } else {
+        setEvaluationResults([]);
+      }
+    } catch (error) {
+      console.error('获取考核结果失败:', error)
+      setEvaluationResults([]);
+    } finally {
+      setLoading(false);
+      setShowSkeleton(false);
+    }
+  }
+
   // 获取所有部门的数据
   const fetchAllData = async () => {
     setLoading(true);
     setShowSkeleton(true);
     try {
       // 并行调用三次接口
-      const promises = departmentOptions.map(opt => 
-        getBasicByTypeApi(opt.value)
+      const promises = departmentOptions.map((opt) =>
+        getBasicByTypeApi(opt.value),
       );
-      
+
       const results = await Promise.all(promises);
-      
+
       // 合并所有数据
       const allMembers: Member[] = [];
-      
+
       results.forEach((res, index) => {
         if (res.data.code === 200) {
           const data = res.data.data;
           // 处理不同的数据结构
           let members: Member[] = [];
-          
+
           if (Array.isArray(data)) {
             // 如果 data 直接是数组
             members = data;
-          } else if (data && typeof data === 'object') {
+          } else if (data && typeof data === "object") {
             // 如果 data 是对象，尝试获取 list 或 records 字段
             if (Array.isArray(data.list)) {
               members = data.list;
@@ -71,17 +95,17 @@ const Page1: React.FC = () => {
               members = [data];
             }
           }
-          
+
           // 确保每个成员都有正确的 type（如果后端没返回，使用请求的部门）
-          members = members.map(member => ({
+          members = members.map((member) => ({
             ...member,
-            type: member.type || departmentOptions[index].value
+            type: member.type || departmentOptions[index].value,
           }));
-          
+
           allMembers.push(...members);
         }
       });
-      
+
       // 按部门分组
       const groups = groupByType(allMembers);
       setGroupedData(groups);
@@ -99,14 +123,14 @@ const Page1: React.FC = () => {
   // 按部门分组
   const groupByType = (data: Member[]): GroupedData[] => {
     const groups: { [key: string]: Member[] } = {};
-    
+
     // 按指定顺序排序
     const orderMap: { [key: string]: number } = {
-      "党支部委员会": 1,
-      "车间分会委员会": 2,
-      "团支部委员会": 3,
+      党支部委员会: 1,
+      车间分会委员会: 2,
+      团支部委员会: 3,
     };
-    
+
     data.forEach((member) => {
       if (!groups[member.type]) {
         groups[member.type] = [];
@@ -129,7 +153,7 @@ const Page1: React.FC = () => {
       return "https://randomuser.me/api/portraits/men/default.jpg";
     }
     // 如果 photo 已经是完整的 data URL，直接返回
-    if (photo.startsWith('data:image')) {
+    if (photo.startsWith("data:image")) {
       return photo;
     }
     return `data:image/jpeg;base64,${photo}`;
@@ -144,13 +168,13 @@ const Page1: React.FC = () => {
           <div key={idx} style={{ marginBottom: 24 }}>
             {/* 部门标题骨架 */}
             <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <Skeleton.Input 
-                active 
-                size="small" 
-                style={{ width: 120, height: 20 }} 
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 120, height: 20 }}
               />
             </div>
-            
+
             {/* 成员卡片骨架 - 一行显示5个 */}
             <div
               style={{
@@ -171,46 +195,50 @@ const Page1: React.FC = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Skeleton.Avatar 
-                    active 
-                    size={38} 
-                    style={{ marginBottom: 8 }} 
+                  <Skeleton.Avatar
+                    active
+                    size={38}
+                    style={{ marginBottom: 8 }}
                   />
-                  <Skeleton.Input 
-                    active 
-                    size="small" 
-                    style={{ width: 50, height: 12, marginBottom: 4 }} 
+                  <Skeleton.Input
+                    active
+                    size="small"
+                    style={{ width: 50, height: 12, marginBottom: 4 }}
                   />
-                  <Skeleton.Input 
-                    active 
-                    size="small" 
-                    style={{ width: 40, height: 12 }} 
+                  <Skeleton.Input
+                    active
+                    size="small"
+                    style={{ width: 40, height: 12 }}
                   />
                 </div>
               ))}
             </div>
-            
+
             {/* 统计信息卡片骨架 */}
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <Skeleton.Button 
-                active 
-                size="default" 
-                style={{ width: "75%", height: 60 }} 
+              <Skeleton.Button
+                active
+                size="default"
+                style={{ width: "75%", height: 60 }}
               />
             </div>
           </div>
         ))}
-        
+
         {/* 考核结果表格骨架 */}
         <div style={{ marginTop: 16 }}>
           <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <Skeleton.Input active size="small" style={{ width: 120, height: 20 }} />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 120, height: 20 }}
+            />
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Skeleton.Button 
-              active 
-              size="default" 
-              style={{ width: "75%", height: 80 }} 
+            <Skeleton.Button
+              active
+              size="default"
+              style={{ width: "75%", height: 80 }}
             />
           </div>
         </div>
@@ -219,6 +247,7 @@ const Page1: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchEvaluationResults();
     fetchAllData();
   }, []);
 
@@ -263,7 +292,6 @@ const Page1: React.FC = () => {
             objectFit: "contain",
           }}
         />
-        {/* 叠加的黄色文字 */}
         <div
           style={{
             position: "absolute",
@@ -287,8 +315,7 @@ const Page1: React.FC = () => {
         style={{
           width: 544,
           minWidth: 0,
-          height: 644,
-          backgroundColor: "#f6ddc6",
+          background: "linear-gradient(to bottom, #f7d5c8, #f9d9c9, #fef1d8, #f3d5c8)",
           borderRadius: 8,
           padding: 10,
           overflowY: "auto",
@@ -310,11 +337,13 @@ const Page1: React.FC = () => {
             {groupedData.map((item, index) => (
               <div
                 key={index}
-                style={{ marginBottom: index < groupedData.length - 1 ? 10 : 0 }}
+                style={{
+                  marginBottom: index < groupedData.length - 1 ? 10 : 0,
+                }}
               >
                 <div
                   style={{
-                    fontSize: 15,
+                    fontSize: 20,
                     fontWeight: 700,
                     color: "#dc2626",
                     textAlign: "center",
@@ -327,8 +356,8 @@ const Page1: React.FC = () => {
                   style={{
                     display: "flex",
                     flexWrap: "wrap",
-                    gap: 6,
                     justifyContent: "center",
+                    gap: 2,
                   }}
                 >
                   {item.content.map((member, idx) => (
@@ -338,39 +367,75 @@ const Page1: React.FC = () => {
                         flexShrink: 0,
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "center",
-                        padding: 6,
+                        alignItems: "flex-start",
+                        border: "1px solid black",
+                        paddingBottom: "1px"
                       }}
                     >
                       <img
                         src={getPhotoUrl(member.photo)}
                         alt={member.name}
                         style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: "50%",
+                          width: "100%",
+                          height: 55,
                           marginBottom: 4,
                           objectFit: "cover",
                         }}
                       />
                       <div
                         style={{
+                          marginBottom: 4,
                           fontSize: 9,
                           textAlign: "center",
                           lineHeight: 1.3,
                         }}
                       >
-                        姓名：{member.name}
+                        姓名：
+                        <span
+                          style={{
+                            position: "relative",
+                            display: "inline-block",
+                          }}
+                        >
+                          {member.name}
+                          <span
+                            style={{
+                              position: "absolute",
+                              left: "0px", // 向左延伸
+                              right: "0px", // 向右延伸
+                              bottom: 0,
+                              height: "1px",
+                              backgroundColor: "currentColor",
+                            }}
+                          />
+                        </span>
                       </div>
                       <div
                         style={{
                           fontSize: 9,
                           textAlign: "center",
                           lineHeight: 1.3,
-                          color: "#666",
                         }}
                       >
-                        职务：{member.position}
+                        职务：
+                        <span
+                          style={{
+                            position: "relative",
+                            display: "inline-block",
+                          }}
+                        >
+                          {member.position}
+                          <span
+                            style={{
+                              position: "absolute",
+                              left: "-4px", // 向左延伸
+                              right: "0px", // 向右延伸
+                              bottom: 0,
+                              height: "1px",
+                              backgroundColor: "currentColor",
+                            }}
+                          />
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -379,10 +444,10 @@ const Page1: React.FC = () => {
                 {/* 统计信息卡片 - 白色背景 */}
                 <div
                   style={{
-                    width: "75%",
+                    width: "70%",
                     backgroundColor: "#ffffff",
                     borderRadius: 8,
-                    padding: "10px 12px",
+                    padding: "0px 12px",
                     margin: "0 auto",
                     marginTop: 8,
                     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
@@ -407,7 +472,7 @@ const Page1: React.FC = () => {
             <div style={{ marginTop: 16 }}>
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: "#dc2626",
                   textAlign: "center",
@@ -492,7 +557,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      优秀
+                      {evaluationResults[0]?.one || '-'}
                     </td>
                     <td
                       style={{
@@ -501,7 +566,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      良好
+                      {evaluationResults[0]?.two || '-'}
                     </td>
                     <td
                       style={{
@@ -510,7 +575,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      合格
+                      {evaluationResults[0]?.three || '-'}
                     </td>
                     <td
                       style={{
@@ -519,7 +584,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      优秀
+                      {evaluationResults[0]?.four || '-'}
                     </td>
                     <td
                       style={{
@@ -529,7 +594,7 @@ const Page1: React.FC = () => {
                         fontWeight: 500,
                       }}
                     >
-                      优秀
+                      {evaluationResults[0]?.years || '-'}
                     </td>
                   </tr>
                 </tbody>
