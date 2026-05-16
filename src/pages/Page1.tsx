@@ -377,9 +377,9 @@ const Page1: React.FC = () => {
                         alt={member.name}
                         style={{
                           width: "100%",
-                          height: 55,
+                          height: 66,
                           marginBottom: 4,
-                          objectFit: "cover",
+                          objectFit: "fill",
                         }}
                       />
                       <div
