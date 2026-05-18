@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Table, Form, Button, Space, Input, Modal, message, Popconfirm, Select, Upload } from 'antd'
-import { PlusOutlined, UploadOutlined, SearchOutlined, ReloadOutlined, EditOutlined } from '@ant-design/icons'
+import { PlusOutlined, UploadOutlined, SearchOutlined, ReloadOutlined, EditOutlined, UserOutlined } from '@ant-design/icons'
 import { getBasicListApi, getBasicByTypeApi, addBasicApi, delBasicApi, editBasicApi } from '@/api/basic'
 import { getEvaluationResultList, addEvaluationResult, editEvaluationResultById } from '@/api/evaluationResult'
+import { getBasicInfoNumList, addBasicInfoNum, editBasicInfoNumById } from '@/api/basicInfoNum'
 import styled from 'styled-components'
 
 const { Option } = Select
@@ -66,6 +67,13 @@ const PartyBasic: React.FC = () => {
   const [resultLoading, setResultLoading] = useState(false)
   const [currentResultId, setCurrentResultId] = useState<number | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
+
+  // 基本情况人员数量年龄弹窗相关状态
+  const [basicInfoNumModalVisible, setBasicInfoNumModalVisible] = useState(false)
+  const [basicInfoNumForm] = Form.useForm()
+  const [basicInfoNumLoading, setBasicInfoNumLoading] = useState(false)
+  const [currentBasicInfoNumId, setCurrentBasicInfoNumId] = useState<number | null>(null)
+  const [isBasicInfoNumEditMode, setIsBasicInfoNumEditMode] = useState(false)
 
   useEffect(() => {
     fetchTableData()
@@ -172,7 +180,6 @@ const PartyBasic: React.FC = () => {
     setResultLoading(true)
     
     try {
-      // 调用接口获取考核结果数据
       const res = await getEvaluationResultList({
         pageNum: 1,
         pageSize: 10,
@@ -180,10 +187,8 @@ const PartyBasic: React.FC = () => {
       
       if (res.data.code === 200) {
         const resultData = res.data.data
-        // 判断是否为空数组
         if (resultData && resultData.total > 0) {
-          // 编辑模式：有数据
-          const data = resultData.list[0] // 假设返回数组，取第一条
+          const data = resultData.list[0]
           setIsEditMode(true)
           setCurrentResultId(data.id)
           resultForm.setFieldsValue({
@@ -194,13 +199,11 @@ const PartyBasic: React.FC = () => {
             years: data.years,
           })
         } else {
-          // 新增模式：无数据
           setIsEditMode(false)
           setCurrentResultId(null)
           resultForm.resetFields()
         }
       } else {
-        // 接口返回失败，按新增模式处理
         setIsEditMode(false)
         setCurrentResultId(null)
         resultForm.resetFields()
@@ -208,7 +211,6 @@ const PartyBasic: React.FC = () => {
       }
     } catch (error) {
       console.error('获取考核结果失败:', error)
-      // 出错时按新增模式处理
       setIsEditMode(false)
       setCurrentResultId(null)
       resultForm.resetFields()
@@ -237,7 +239,6 @@ const PartyBasic: React.FC = () => {
           id: currentResultId,
           ...submitData,
         }
-        // 编辑模式：调用编辑接口
         res = await editEvaluationResultById(obj)
         if (res.data.code === 200) {
           message.success('编辑考核结果成功')
@@ -247,7 +248,6 @@ const PartyBasic: React.FC = () => {
           message.error(res.data.message || '编辑失败')
         }
       } else {
-        // 新增模式：调用新增接口
         res = await addEvaluationResult(submitData)
         if (res.data.code === 200) {
           message.success('新增考核结果成功')
@@ -269,6 +269,117 @@ const PartyBasic: React.FC = () => {
     setIsEditMode(false)
   }
 
+  // 编辑基本情况人员数量年龄
+  const handleEditBasicInfoNumModal = async () => {
+    setBasicInfoNumModalVisible(true)
+    setBasicInfoNumLoading(true)
+    
+    try {
+      const res = await getBasicInfoNumList({
+        pageNum: 1,
+        pageSize: 10,
+      })
+      
+      if (res.data.code === 200) {
+        const resultData = res.data.data
+        if (resultData && resultData.total > 0) {
+          // 编辑模式：有数据
+          const data = resultData.list[0]
+          setIsBasicInfoNumEditMode(true)
+          setCurrentBasicInfoNumId(data.id)
+          basicInfoNumForm.setFieldsValue({
+            partyNum1: data.partyNum1,
+            partyNum2: data.partyNum2,
+            partyNum3: data.partyNum3,
+            partyNum4: data.partyNum4,
+            partyNum5: data.partyNum5,
+            partyNum6: data.partyNum6,
+            cheNum1: data.cheNum1,
+            cheNum2: data.cheNum2,
+            tuanNum1: data.tuanNum1,
+            tuanNum2: data.tuanNum2,
+            tuanNum3: data.tuanNum3,
+            tuanNum4: data.tuanNum4,
+          })
+        } else {
+          // 新增模式：无数据
+          setIsBasicInfoNumEditMode(false)
+          setCurrentBasicInfoNumId(null)
+          basicInfoNumForm.resetFields()
+        }
+      } else {
+        setIsBasicInfoNumEditMode(false)
+        setCurrentBasicInfoNumId(null)
+        basicInfoNumForm.resetFields()
+        message.warning('未找到人员数量年龄数据，将创建新记录')
+      }
+    } catch (error) {
+      console.error('获取人员数量年龄数据失败:', error)
+      setIsBasicInfoNumEditMode(false)
+      setCurrentBasicInfoNumId(null)
+      basicInfoNumForm.resetFields()
+      message.warning('获取人员数量年龄数据失败，将创建新记录')
+    } finally {
+      setBasicInfoNumLoading(false)
+    }
+  }
+
+  // 提交基本情况人员数量年龄
+  const handleBasicInfoNumSubmit = async () => {
+    try {
+      const values = await basicInfoNumForm.validateFields()
+      
+      const submitData = {
+        partyNum1: values.partyNum1,
+        partyNum2: values.partyNum2,
+        partyNum3: values.partyNum3,
+        partyNum4: values.partyNum4,
+        partyNum5: values.partyNum5,
+        partyNum6: values.partyNum6,
+        cheNum1: values.cheNum1,
+        cheNum2: values.cheNum2,
+        tuanNum1: values.tuanNum1,
+        tuanNum2: values.tuanNum2,
+        tuanNum3: values.tuanNum3,
+        tuanNum4: values.tuanNum4,
+      }
+      
+      let res
+      if (isBasicInfoNumEditMode && currentBasicInfoNumId) {
+        let obj = {
+          id: currentBasicInfoNumId,
+          ...submitData,
+        }
+        res = await editBasicInfoNumById(obj)
+        if (res.data.code === 200) {
+          message.success('编辑人员数量年龄成功')
+          setBasicInfoNumModalVisible(false)
+          basicInfoNumForm.resetFields()
+        } else {
+          message.error(res.data.message || '编辑失败')
+        }
+      } else {
+        res = await addBasicInfoNum(submitData)
+        if (res.data.code === 200) {
+          message.success('新增人员数量年龄成功')
+          setBasicInfoNumModalVisible(false)
+          basicInfoNumForm.resetFields()
+        } else {
+          message.error(res.data.message || '新增失败')
+        }
+      }
+    } catch (error) {
+      console.error('表单验证失败:', error)
+    }
+  }
+
+  const handleCancelBasicInfoNumModal = () => {
+    setBasicInfoNumModalVisible(false)
+    basicInfoNumForm.resetFields()
+    setCurrentBasicInfoNumId(null)
+    setIsBasicInfoNumEditMode(false)
+  }
+
   const handleCancelModal = () => {
     setEditId(null)
     setIsModalVisible(false)
@@ -286,12 +397,10 @@ const PartyBasic: React.FC = () => {
         const img = new Image()
         img.src = event.target?.result as string
         img.onload = () => {
-          // 创建 canvas
           const canvas = document.createElement('canvas')
           let width = img.width
           let height = img.height
           
-          // 极致缩小尺寸 - 限制最大边长为 200px（适合头像展示）
           const maxSize = 200
           if (width > height && width > maxSize) {
             height = (height * maxSize) / width
@@ -310,39 +419,28 @@ const PartyBasic: React.FC = () => {
             return
           }
           
-          // 绘制图片
           ctx.drawImage(img, 0, 0, width, height)
           
-          // 极致压缩：使用最低质量 0.3-0.4，使用 JPEG 格式
-          // 先尝试 JPEG（有损压缩，文件更小）
-          let quality = 0.35 // 极致压缩质量参数（0-1之间，0.35可大幅减小文件大小）
-          
-          // 对于照片类图片，JPEG 效果最好
+          let quality = 0.35
           let base64 = canvas.toDataURL('image/jpeg', quality)
           
-          // 如果 JPEG 仍然太大（超过 30KB），进一步降质
           let finalBase64 = base64
           let finalQuality = quality
           
-          // 计算 Base64 的实际大小（去除 data:image/jpeg;base64, 前缀）
           const getBase64Size = (b64: string) => {
             const base64Data = b64.split(',')[1]
             if (!base64Data) return 0
-            // Base64 字符串长度 * 0.75 约等于实际字节数
             return Math.ceil(base64Data.length * 0.75)
           }
           
           let sizeInBytes = getBase64Size(base64)
           
-          // 如果超过 20KB，继续降低质量
           while (sizeInBytes > 20 * 1024 && finalQuality > 0.2) {
             finalQuality -= 0.05
             finalBase64 = canvas.toDataURL('image/jpeg', finalQuality)
             sizeInBytes = getBase64Size(finalBase64)
           }
           
-          // 极致优化：如果图片是纯色或图标类，可以尝试 PNG 但索引色（这里不做复杂处理）
-          // 最终返回纯 Base64 数据（不带前缀）
           const pureBase64 = finalBase64.split(',')[1]
           resolve(pureBase64)
         }
@@ -356,14 +454,11 @@ const PartyBasic: React.FC = () => {
     })
   }
 
-  // 备用压缩方案：针对特殊图片格式
   const ultraCompressImage = async (file: File): Promise<string> => {
     try {
-      // 先尝试标准压缩
       return await compressImage(file)
     } catch (error) {
       console.error('压缩失败，使用备用方案:', error)
-      // 备用方案：使用更极端的尺寸限制
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsDataURL(file)
@@ -372,7 +467,6 @@ const PartyBasic: React.FC = () => {
           img.src = event.target?.result as string
           img.onload = () => {
             const canvas = document.createElement('canvas')
-            // 极限缩小到 120px
             let width = img.width
             let height = img.height
             const maxSize = 120
@@ -392,7 +486,6 @@ const PartyBasic: React.FC = () => {
               return
             }
             ctx.drawImage(img, 0, 0, width, height)
-            // 极限质量 0.2
             const base64 = canvas.toDataURL('image/jpeg', 0.2)
             const pureBase64 = base64.split(',')[1]
             resolve(pureBase64)
@@ -414,13 +507,12 @@ const PartyBasic: React.FC = () => {
       message.error('只能上传 JPG/PNG/GIF 格式的图片')
       return Upload.LIST_IGNORE
     }
-    // 放宽原始文件大小限制，因为会进行极致压缩
     const isLt5M = file.size / 1024 / 1024 < 5
     if (!isLt5M) {
       message.error('图片大小不能超过 5MB')
       return Upload.LIST_IGNORE
     }
-    return false // 阻止自动上传
+    return false
   }
 
   const handlePhotoChange = async (info: any) => {
@@ -433,7 +525,6 @@ const PartyBasic: React.FC = () => {
         setPhotoBase64(base64)
         addForm.setFieldsValue({ photo: base64 })
         
-        // 计算压缩后的大小并提示
         const sizeInKB = Math.ceil(base64.length * 0.75 / 1024)
         hideLoading()
         message.success(`图片压缩完成！大小约 ${sizeInKB} KB`, 2)
@@ -441,7 +532,6 @@ const PartyBasic: React.FC = () => {
         hideLoading()
         message.error('图片压缩失败，请重试或更换图片')
         console.error('压缩失败:', error)
-        // 清空上传的文件
         addForm.setFieldsValue({ photo: undefined })
         setPhotoBase64('')
       } finally {
@@ -462,7 +552,6 @@ const PartyBasic: React.FC = () => {
     try {
       const values = await addForm.validateFields()
 
-      // 验证照片是否已上传
       if (!photoBase64) {
         message.error('请上传照片')
         return
@@ -470,12 +559,8 @@ const PartyBasic: React.FC = () => {
 
       const submitData = {
         ...values,
-        photo: photoBase64, // 已压缩的 Base64 数据
+        photo: photoBase64,
       }
-
-      // 可选：打印提交的数据大小用于调试
-      console.log('图片 Base64 长度:', photoBase64.length)
-      console.log('图片实际大小:', Math.ceil(photoBase64.length * 0.75 / 1024), 'KB')
 
       if (modalTitle === '新增基本情况') {
         const res = await addBasicApi(submitData)
@@ -492,7 +577,7 @@ const PartyBasic: React.FC = () => {
         const res = await editBasicApi({
           id: editId,
           ...values,
-          photo: photoBase64, // 编辑时也使用压缩后的图片
+          photo: photoBase64,
         })
         if (res.data.code === 200) {
           message.success('编辑成功')
@@ -615,6 +700,7 @@ const PartyBasic: React.FC = () => {
               <Button icon={<ReloadOutlined />} onClick={handleReset}>重置</Button>
               <Button type="primary" icon={<PlusOutlined />} onClick={handleAddModal}>新增</Button>
               <Button type="primary" icon={<EditOutlined />} onClick={handleEditResultModal}>编辑考核本支部结果</Button>
+              <Button type="primary" icon={<UserOutlined />} onClick={handleEditBasicInfoNumModal}>编辑基本情况人员数量年龄</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -748,6 +834,122 @@ const PartyBasic: React.FC = () => {
             rules={[{ required: true, message: '请输入四季度考核结果' }]}
           >
             <Input placeholder="请输入四季度考核结果" autoComplete="off" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 基本情况人员数量年龄弹窗 */}
+      <Modal
+        title={isBasicInfoNumEditMode ? '编辑基本情况人员数量年龄' : '新增基本情况人员数量年龄'}
+        open={basicInfoNumModalVisible}
+        onOk={handleBasicInfoNumSubmit}
+        onCancel={handleCancelBasicInfoNumModal}
+        width={700}
+        okText="确定"
+        cancelText="取消"
+        confirmLoading={basicInfoNumLoading}
+      >
+        <Form form={basicInfoNumForm} layout="vertical">
+          <div style={{ marginBottom: 16, fontWeight: 'bold', fontSize: 16, color: '#dc2626' }}>党支部委员会</div>
+          
+          <Form.Item 
+            name="partyNum1" 
+            label="现有党员人数" 
+            rules={[{ required: true, message: '请输入现有党员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入现有党员人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="partyNum2" 
+            label="预备党员人数" 
+            rules={[{ required: true, message: '请输入预备党员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入预备党员人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="partyNum3" 
+            label="党员平均年龄" 
+            rules={[{ required: true, message: '请输入党员平均年龄' }]}
+          >
+            <Input type="number" min={0} step="0.1" placeholder="请输入党员平均年龄" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="partyNum4" 
+            label="发展党员人数" 
+            rules={[{ required: true, message: '请输入发展党员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入发展党员人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="partyNum5" 
+            label="入党积极分子人数" 
+            rules={[{ required: true, message: '请输入入党积极分子人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入入党积极分子人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="partyNum6" 
+            label="递交入党申请书人数" 
+            rules={[{ required: true, message: '请输入递交入党申请书人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入递交入党申请书人数" autoComplete="off" />
+          </Form.Item>
+
+          <div style={{ marginBottom: 16, fontWeight: 'bold', fontSize: 16, color: '#dc2626' }}>车间分会委员会</div>
+
+          <Form.Item 
+            name="cheNum1" 
+            label="班组数量" 
+            rules={[{ required: true, message: '请输入班组数量' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入班组数量" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="cheNum2" 
+            label="分会会员人数" 
+            rules={[{ required: true, message: '请输入分会会员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入分会会员人数" autoComplete="off" />
+          </Form.Item>
+
+          <div style={{ marginBottom: 16, fontWeight: 'bold', fontSize: 16, color: '#dc2626' }}>团支部委员会</div>
+
+          <Form.Item 
+            name="tuanNum1" 
+            label="团员人数" 
+            rules={[{ required: true, message: '请输入团员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入团员人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="tuanNum2" 
+            label="预备团员人数" 
+            rules={[{ required: true, message: '请输入预备团员人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入预备团员人数" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="tuanNum3" 
+            label="团员平均年龄" 
+            rules={[{ required: true, message: '请输入团员平均年龄' }]}
+          >
+            <Input type="number" min={0} step="0.1" placeholder="请输入团员平均年龄" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item 
+            name="tuanNum4" 
+            label="青工人数（35岁及以下）" 
+            rules={[{ required: true, message: '请输入青工人数' }]}
+          >
+            <Input type="number" min={0} placeholder="请输入青工人数" autoComplete="off" />
           </Form.Item>
         </Form>
       </Modal>

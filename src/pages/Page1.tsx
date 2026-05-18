@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getBasicByTypeApi } from "@/api/basic";
-import { getEvaluationResultList } from '@/api/evaluationResult'
-import {
-  hbgIconImage,
-  bgImage,
-} from "@/utils/images";
+import { getEvaluationResultList } from "@/api/evaluationResult";
+import { getBasicInfoNumList } from "@/api/basicInfoNum";
+import { hbgIconImage, bgImage } from "@/utils/images";
 import { Skeleton } from "antd";
 
 interface Member {
@@ -24,6 +22,7 @@ const Page1: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [evaluationResults, setEvaluationResults] = useState<any[]>([]);
+  const [basicInfoNums, setBasicInfoNums] = useState<any[]>([]);
 
   const departmentOptions = [
     { label: "党支部委员会", value: "党支部委员会" },
@@ -38,23 +37,30 @@ const Page1: React.FC = () => {
     setLoading(true);
     setShowSkeleton(true);
     try {
-      const res = await getEvaluationResultList({
+      const evaluationResultPromise = getEvaluationResultList({
         pageNum: 1,
         pageSize: 10,
-      })
-      if (res.data.code === 200) {
-        setEvaluationResults(res.data.data.list || []);
-      } else {
-        setEvaluationResults([]);
-      }
+      });
+      const basicInfoNumPromise = getBasicInfoNumList({
+        pageNum: 1,
+        pageSize: 10,
+      });
+      // 并行调用两个接口，并合并结果
+      Promise.all([evaluationResultPromise, basicInfoNumPromise]).then(
+        (results) => {
+          setEvaluationResults(results[0].data.data.list || []);
+          setBasicInfoNums(results[1].data.data.list || []);
+        },
+      );
     } catch (error) {
-      console.error('获取考核结果失败:', error)
+      console.error("获取考核结果和基本信息人员年龄等情况列表失败:", error);
       setEvaluationResults([]);
+      setBasicInfoNums([]);
     } finally {
       setLoading(false);
       setShowSkeleton(false);
     }
-  }
+  };
 
   // 获取所有部门的数据
   const fetchAllData = async () => {
@@ -315,7 +321,8 @@ const Page1: React.FC = () => {
         style={{
           width: 544,
           minWidth: 0,
-          background: "linear-gradient(to bottom, #f7d5c8, #f9d9c9, #fef1d8, #f3d5c8)",
+          background:
+            "linear-gradient(to bottom, #f7d5c8, #f9d9c9, #fef1d8, #f3d5c8)",
           borderRadius: 8,
           padding: 10,
           overflowY: "auto",
@@ -369,7 +376,7 @@ const Page1: React.FC = () => {
                         flexDirection: "column",
                         alignItems: "flex-start",
                         border: "1px solid black",
-                        paddingBottom: "1px"
+                        paddingBottom: "1px",
                       }}
                     >
                       <img
@@ -442,6 +449,9 @@ const Page1: React.FC = () => {
                 </div>
 
                 {/* 统计信息卡片 - 白色背景 */}
+                {/* 如果是党支部委员会，显示：现有党员X名，其中预备党员X名，平均年龄X岁；现有发展党员X名，入党积极分子X名，递交入党申请书X名。
+                如果是车间分会委员会，显示：现有班组xx个，分会会员xx名。
+                如果是团支部委员会，显示：现有团员xx名，预备团委xx名，平均年龄xx岁；现有青工（35岁及以下）xx名。 */}
                 <div
                   style={{
                     width: "70%",
@@ -462,7 +472,19 @@ const Page1: React.FC = () => {
                       textAlign: "center",
                     }}
                   >
-                    现有党员X名，其中预备党员X名，平均年龄X岁；现有发展党员X名，入党积极分子X名，递交入党申请书X名。
+                    {(() => {
+                      const stats = basicInfoNums[0] || {};
+                      switch (item.title) {
+                        case "党支部委员会":
+                          return `现有党员${stats.partyNum1 || 0}名，其中预备党员${stats.partyNum2 || 0}名，平均年龄${stats.partyNum3 || 0}岁；现有发展党员${stats.partyNum4 || 0}名，入党积极分子${stats.partyNum5 || 0}名，递交入党申请书${stats.partyNum6 || 0}名。`;
+                        case "车间分会委员会":
+                          return `现有班组${stats.cheNum1 || 0}个，分会会员${stats.cheNum2 || 0}名。`;
+                        case "团支部委员会":
+                          return `现有团员${stats.tuanNum1 || 0}名，预备团委${stats.tuanNum2 || 0}名，平均年龄${stats.tuanNum3 || 0}岁；现有青工（35岁及以下）${stats.tuanNum4 || 0}名。`;
+                        default:
+                          return "";
+                      }
+                    })()}
                   </div>
                 </div>
               </div>
@@ -557,7 +579,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      {evaluationResults[0]?.one || '-'}
+                      {evaluationResults[0]?.one || "-"}
                     </td>
                     <td
                       style={{
@@ -566,7 +588,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      {evaluationResults[0]?.two || '-'}
+                      {evaluationResults[0]?.two || "-"}
                     </td>
                     <td
                       style={{
@@ -575,7 +597,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      {evaluationResults[0]?.three || '-'}
+                      {evaluationResults[0]?.three || "-"}
                     </td>
                     <td
                       style={{
@@ -584,7 +606,7 @@ const Page1: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      {evaluationResults[0]?.four || '-'}
+                      {evaluationResults[0]?.four || "-"}
                     </td>
                     <td
                       style={{
@@ -594,7 +616,7 @@ const Page1: React.FC = () => {
                         fontWeight: 500,
                       }}
                     >
-                      {evaluationResults[0]?.years || '-'}
+                      {evaluationResults[0]?.years || "-"}
                     </td>
                   </tr>
                 </tbody>
