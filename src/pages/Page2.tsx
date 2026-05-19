@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Table, Form } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getEvaluationListApi } from "@/api/evaluation";
+import { getPartyBranchEvaluationListApi } from "@/api/partyBranchEvaluation";
 import {
   dbgImage,
   dbqImage,
@@ -17,19 +18,15 @@ import {
 interface TableRowData {
   key: string;
   name: string;
-  // 每个季度包含岗、区、四优三个字段
-  q1_post: string;
-  q1_area: string;
-  q1_excellent: string;
-  q2_post: string;
-  q2_area: string;
-  q2_excellent: string;
-  q3_post: string;
-  q3_area: string;
-  q3_excellent: string;
-  q4_post: string;
-  q4_area: string;
-  q4_excellent: string;
+  post: string;
+  area: string;
+  excellent: string;
+}
+
+interface PartyBranchRowData {
+  key: string;
+  partyBranch: string;
+  level: string;
 }
 
 interface RawDataItem {
@@ -44,10 +41,17 @@ interface RawDataItem {
   good?: string;
 }
 
+interface PartyBranchRawItem {
+  id: number;
+  year: string;
+  quarter: string;
+  partyBranch: string;
+  level: string;
+}
+
 // 获取徽章样式
 const getBadgeStyle = (value: string) => {
   if (!value) return "-";
-  console.log(value);
   if (value === "达标岗") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -106,73 +110,50 @@ const getBadgeStyle = (value: string) => {
   return value;
 };
 
-// 转换数据：将后端返回的扁平数据转换为以姓名为主键的二维表格数据
+// 获取党小组等级徽章样式
+const getPartyBranchLevelStyle = (value: string) => {
+  if (!value) return "-";
+  if (value === "红旗党小组") {
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={hqqImage} alt={value} style={{ width: 15, height: 15 }} />
+        {value}
+      </div>
+    );
+  }
+  if (value === "警示党小组") {
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={jsqImage} alt={value} style={{ width: 15, height: 15 }} />
+        {value}
+      </div>
+    );
+  }
+  return value;
+};
+
+// 转换数据：将后端返回的数据转换为表格行数据（只包含当前季度）
 const transformToTableData = (data: RawDataItem[]): TableRowData[] => {
-  // 按姓名分组
-  const groupedByName: Record<
-    string,
-    Record<string, { post: string; area: string; good: string }>
-  > = {};
-
-  data.forEach((item) => {
-    if (!groupedByName[item.name]) {
-      groupedByName[item.name] = {};
-    }
-    groupedByName[item.name][item.quarter] = {
-      post: item.responsibilityPost,
-      area: item.responsibilityArea,
-      good: item.good || "", // 如果后端有返回四优字段
-    };
-  });
-
-  // 转换为表格行数据
-  return Object.entries(groupedByName).map(([name, quarters]) => ({
-    key: name,
-    name,
-    q1_post: quarters["一季度"]?.post || "",
-    q1_area: quarters["一季度"]?.area || "",
-    q1_excellent: quarters["一季度"]?.good || "",
-    q2_post: quarters["二季度"]?.post || "",
-    q2_area: quarters["二季度"]?.area || "",
-    q2_excellent: quarters["二季度"]?.good || "",
-    q3_post: quarters["三季度"]?.post || "",
-    q3_area: quarters["三季度"]?.area || "",
-    q3_excellent: quarters["三季度"]?.good || "",
-    q4_post: quarters["四季度"]?.post || "",
-    q4_area: quarters["四季度"]?.area || "",
-    q4_excellent: quarters["四季度"]?.good || "",
+  return data.map((item, index) => ({
+    key: `${item.name}_${index}`,
+    name: item.name,
+    post: item.responsibilityPost || "",
+    area: item.responsibilityArea || "",
+    excellent: item.good || "",
   }));
 };
 
-// 生成表格列配置
-const generateColumns = (): ColumnsType<TableRowData> => {
-  const quarters = ["一季度", "二季度", "三季度", "四季度"];
-  const quarterMap: Record<
-    string,
-    { postKey: string; areaKey: string; excellentKey: string }
-  > = {
-    一季度: {
-      postKey: "q1_post",
-      areaKey: "q1_area",
-      excellentKey: "q1_excellent",
-    },
-    二季度: {
-      postKey: "q2_post",
-      areaKey: "q2_area",
-      excellentKey: "q2_excellent",
-    },
-    三季度: {
-      postKey: "q3_post",
-      areaKey: "q3_area",
-      excellentKey: "q3_excellent",
-    },
-    四季度: {
-      postKey: "q4_post",
-      areaKey: "q4_area",
-      excellentKey: "q4_excellent",
-    },
-  };
+// 转换党小组数据
+const transformToPartyBranchData = (data: PartyBranchRawItem[]): PartyBranchRowData[] => {
+  return data.map((item, index) => ({
+    key: `${item.partyBranch}_${index}`,
+    partyBranch: item.partyBranch,
+    level: item.level || "",
+  }));
+};
 
+// 生成表格列配置（只展示当前季度）
+const generateColumns = (quarter: string): ColumnsType<TableRowData> => {
   const columns: ColumnsType<TableRowData> = [
     {
       title: "姓名",
@@ -183,38 +164,58 @@ const generateColumns = (): ColumnsType<TableRowData> => {
     },
   ];
 
-  quarters.forEach((quarter) => {
-    const { postKey, areaKey, excellentKey } = quarterMap[quarter];
-    columns.push({
-      title: quarter,
-      children: [
-        {
-          title: "岗",
-          dataIndex: postKey,
-          key: `${quarter}_post`,
-          width: 100,
-          render: (value: string) => getBadgeStyle(value),
-        },
-        {
-          title: "区",
-          dataIndex: areaKey,
-          key: `${quarter}_area`,
-          width: 100,
-          render: (value: string) => getBadgeStyle(value),
-        },
-        {
-          title: "四优",
-          dataIndex: excellentKey,
-          key: `${quarter}_excellent`,
-          width: 100,
-          render: (value: string) =>
-            value && value !== "否" && value !== "x" && value !== "X"
-              ? getBadgeStyle("四优")
-              : "-",
-        },
-      ],
-    });
+  // 当前季度的列
+  columns.push({
+    title: quarter,
+    children: [
+      {
+        title: "岗",
+        dataIndex: "post",
+        key: "post",
+        width: 100,
+        render: (value: string) => getBadgeStyle(value),
+      },
+      {
+        title: "区",
+        dataIndex: "area",
+        key: "area",
+        width: 100,
+        render: (value: string) => getBadgeStyle(value),
+      },
+      {
+        title: "四优",
+        dataIndex: "excellent",
+        key: "excellent",
+        width: 100,
+        render: (value: string) =>
+          value && value !== "否" && value !== "x" && value !== "X"
+            ? getBadgeStyle("四优")
+            : "-",
+      },
+    ],
   });
+
+  return columns;
+};
+
+// 生成党小组表格列配置（显示等级level）
+const generatePartyBranchEvaluationColumns = (quarter: string): ColumnsType<PartyBranchRowData> => {
+  const columns: ColumnsType<PartyBranchRowData> = [
+    {
+      title: "党小组",
+      dataIndex: "partyBranch",
+      key: "partyBranch",
+      width: 120,
+      fixed: "left",
+    },
+    {
+      title: quarter,
+      dataIndex: "level",
+      key: "level",
+      width: 120,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+  ];
 
   return columns;
 };
@@ -223,6 +224,8 @@ const Page2: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<RawDataItem[]>([]);
+  const [partyBranchEvaluation, setPartyBranchEvaluation] = useState<PartyBranchRawItem[]>([]);
+  const [currentQuarter, setCurrentQuarter] = useState<string>("");
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -231,31 +234,59 @@ const Page2: React.FC = () => {
     },
   });
 
+  // 获取当前年份和当前季度
+  const getCurrentYearAndQuarter = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    let quarter = "";
+    if (month >= 1 && month <= 3) quarter = "一季度";
+    else if (month >= 4 && month <= 6) quarter = "二季度";
+    else if (month >= 7 && month <= 9) quarter = "三季度";
+    else quarter = "四季度";
+
+    return { year, quarter };
+  };
+
   // 获取表格数据
   const fetchTableData = async (params?: any) => {
     setLoading(true);
     try {
       const values = form.getFieldsValue();
+      const { year, quarter } = getCurrentYearAndQuarter();
+      setCurrentQuarter(quarter);
+
       const queryParams = {
         pageNum: tableParams.pagination.current,
         pageSize: tableParams.pagination.pageSize,
+        year: year,
+        quarter: quarter,
         ...values,
         ...params,
       };
 
-      const res = await getEvaluationListApi(queryParams);
+      const [res, res1] = await Promise.all([
+        getEvaluationListApi(queryParams),
+        getPartyBranchEvaluationListApi(queryParams)
+      ]);
 
       if (res.data.code === 200) {
         setDataSource(res.data.data.list || []);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: res.data.data.total || 0,
-          },
-        });
       }
+      if (res1.data.code === 200) {
+        setPartyBranchEvaluation(res1.data.data.list || []);
+      }
+      setTableParams({
+        ...tableParams,
+        pagination: {
+          ...tableParams.pagination,
+          total: res.data.data.total || 0,
+        },
+      });
     } catch (error) {
+      setDataSource([]);
+      setPartyBranchEvaluation([]);
       console.error("获取数据失败:", error);
     } finally {
       setLoading(false);
@@ -268,12 +299,29 @@ const Page2: React.FC = () => {
     }
   }, [tableParams.pagination.current, tableParams.pagination.pageSize]);
 
-  // 将后端返回的扁平数据转换为表格展示格式
+  // 将后端返回的数据转换为表格展示格式
   const tableData = useMemo(
     () => transformToTableData(dataSource),
     [dataSource],
   );
-  const columns = useMemo(() => generateColumns(), []);
+
+  // 党小组表格数据
+  const partyBranchTableData = useMemo(
+    () => transformToPartyBranchData(partyBranchEvaluation),
+    [partyBranchEvaluation],
+  );
+
+  // 动态生成列配置
+  const columns = useMemo(
+    () => generateColumns(currentQuarter || "一季度"),
+    [currentQuarter],
+  );
+
+  // 党小组评议表格列配置
+  const partyBranchEvaluationColumns = useMemo(
+    () => generatePartyBranchEvaluationColumns(currentQuarter || "一季度"),
+    [currentQuarter],
+  );
 
   return (
     <>
@@ -348,7 +396,9 @@ const Page2: React.FC = () => {
         >
           <div
             style={{
-              background: "#fff",
+              display: "flex",
+              justifyContent: "space-around",
+              // background: "#fff",
               borderRadius: 12,
               overflow: "auto",
             }}
@@ -356,6 +406,15 @@ const Page2: React.FC = () => {
             <Table
               columns={columns}
               dataSource={tableData}
+              loading={loading}
+              bordered
+              pagination={false}
+              scroll={{ x: "max-content" }}
+              size="small"
+            />
+            <Table
+              columns={partyBranchEvaluationColumns}
+              dataSource={partyBranchTableData}
               loading={loading}
               bordered
               pagination={false}

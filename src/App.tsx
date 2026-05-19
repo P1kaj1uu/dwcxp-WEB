@@ -11,6 +11,7 @@ import Page3 from './pages/Page3'
 import Page4 from './pages/Page4'
 import PartyBasic from './pages/PartyBasic'
 import PartyEvaluation from './pages/PartyEvaluation'
+import PartyBranchEvaluation from './pages/PartyBranchEvaluation'
 import PartyBranch from './pages/PartyBranch'
 import PartyGroup from './pages/PartyGroup'
 import PartyMember from './pages/PartyMember'
@@ -179,6 +180,7 @@ const AppContent: React.FC = () => {
           <Route path="/page4" element={<Page4 />} />
           <Route path="/party-basic" element={<PartyBasic />} />
           <Route path="/party-evaluation" element={<PartyEvaluation />} />
+          <Route path="/party-branch-evaluation" element={<PartyBranchEvaluation />} />
           <Route path="/party-branch" element={<PartyBranch />} />
           <Route path="/party-group" element={<PartyGroup />} />
           <Route path="/party-member" element={<PartyMember />} />

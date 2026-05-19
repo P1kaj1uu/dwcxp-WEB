@@ -227,6 +227,7 @@ const Navbar: React.FC<{ onCollapseChange?: (collapsed: boolean) => void }> = ({
     { key: '/page4', label: '子页面4' },
     { key: '/party-basic', label: '子页面1管理' },
     { key: '/party-evaluation', label: '评议管理' },
+    { key: '/party-branch-evaluation', label: '党小组评议管理' },
     { key: '/party-branch', label: '党支部管理' },
     { key: '/party-group', label: '党小组管理' },
     { key: '/party-member', label: '党员管理' },
