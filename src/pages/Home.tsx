@@ -234,6 +234,7 @@ const Home: React.FC = () => {
   const [pdfUrls, setPdfUrls] = useState<Record<string, string>>({
     重点工作: "",
     党务公开: "",
+    光荣榜: "",
     党风廉政: "",
     组织生活: "",
   });
@@ -361,7 +362,7 @@ const Home: React.FC = () => {
 
   // 获取 PDF 文件列表
   const fetchPdfUrls = async () => {
-    const categories = ["重点工作", "党务公开", "党风廉政", "组织生活"];
+    const categories = ["重点工作", "党务公开", "党风廉政", "光荣榜", "组织生活"];
     const newPdfUrls: Record<string, string> = {};
 
     for (const category of categories) {
