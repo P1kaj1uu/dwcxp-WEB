@@ -14,21 +14,21 @@ interface PdfItem {
 const labelToKey: Record<string, string> = {
   '重点工作': 'keyWork',
   '党务公开': 'partyAffairs',
-  '党风廉政': 'integrity',
+  '光荣榜': 'integrity',
   '组织生活': 'orgLife',
 }
 
 const categoryMap: Record<string, { label: string; color: string; icon: string }> = {
   keyWork: { label: '重点工作', color: '#E74C3C', icon: '' },
   partyAffairs: { label: '党务公开', color: '#3498DB', icon: '' },
-  integrity: { label: '党风廉政', color: '#F39C12', icon: '' },
+  integrity: { label: '光荣榜', color: '#F39C12', icon: '' },
   orgLife: { label: '组织生活', color: '#9B59B6', icon: '' },
 }
 
 const categories = [
   { key: 'keyWork', label: '重点工作', color: '#E74C3C' },
   { key: 'partyAffairs', label: '党务公开', color: '#3498DB' },
-  { key: 'integrity', label: '党风廉政', color: '#F39C12' },
+  { key: 'integrity', label: '光荣榜', color: '#F39C12' },
   { key: 'orgLife', label: '组织生活', color: '#9B59B6' },
 ]
 
@@ -152,7 +152,7 @@ const UploadPDF: React.FC = () => {
   return (
     <div style={{ padding: 24, minHeight: '100vh', background: '#f0f2f5' }}>
       <h2 style={{ marginBottom: 24, fontSize: 24, fontWeight: 600, color: '#333' }}>
-        宣传屏 PDF 文件管理
+        宣传屏文件管理
       </h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
