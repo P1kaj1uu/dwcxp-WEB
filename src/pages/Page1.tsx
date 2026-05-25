@@ -22,7 +22,7 @@ const Page1: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [evaluationResults, setEvaluationResults] = useState<any[]>([]);
-  const [basicInfoNums, setBasicInfoNums] = useState<any[]>([]);
+  // const [basicInfoNums, setBasicInfoNums] = useState<any[]>([]);
 
   const departmentOptions = [
     { label: "党支部委员会", value: "党支部委员会" },
@@ -49,13 +49,13 @@ const Page1: React.FC = () => {
       Promise.all([evaluationResultPromise, basicInfoNumPromise]).then(
         (results) => {
           setEvaluationResults(results[0].data.data.list || []);
-          setBasicInfoNums(results[1].data.data.list || []);
+          // setBasicInfoNums(results[1].data.data.list || []);
         },
       );
     } catch (error) {
       console.error("获取考核结果和基本信息人员年龄等情况列表失败:", error);
       setEvaluationResults([]);
-      setBasicInfoNums([]);
+      // setBasicInfoNums([]);
     } finally {
       setLoading(false);
       setShowSkeleton(false);
@@ -319,13 +319,16 @@ const Page1: React.FC = () => {
       {/* 中间区域 - 基本情况 */}
       <div
         style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-around",
           width: 544,
+          height: 966,
           minWidth: 0,
           background:
             "linear-gradient(to bottom, #f7d5c8, #f9d9c9, #fef1d8, #f3d5c8)",
           borderRadius: 8,
           padding: 10,
-          overflowY: "auto",
           boxSizing: "border-box",
         }}
       >
@@ -344,9 +347,6 @@ const Page1: React.FC = () => {
             {groupedData.map((item, index) => (
               <div
                 key={index}
-                style={{
-                  marginBottom: index < groupedData.length - 1 ? 10 : 0,
-                }}
               >
                 <div
                   style={{
@@ -364,7 +364,7 @@ const Page1: React.FC = () => {
                     display: "flex",
                     flexWrap: "wrap",
                     justifyContent: "center",
-                    gap: 2,
+                    gap: 3.86,
                   }}
                 >
                   {item.content.map((member, idx) => (
@@ -377,22 +377,36 @@ const Page1: React.FC = () => {
                         alignItems: "flex-start",
                         border: "1px solid black",
                         paddingBottom: "1px",
+                        width: 88,
+                        overflow: "hidden",
                       }}
                     >
-                      <img
-                        src={getPhotoUrl(member.photo)}
-                        alt={member.name}
+                      {/* 图片容器 */}
+                      <div
                         style={{
                           width: "100%",
-                          height: 66,
-                          marginBottom: 4,
-                          objectFit: "fill",
+                          height: 95,
+                          overflow: "hidden", // 防止图片溢出
+                          flexShrink: 0, // 防止被压缩
                         }}
-                      />
+                      >
+                        <img
+                          src={getPhotoUrl(member.photo)}
+                          alt={member.name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover", // 关键：cover 会覆盖整个区域，保持比例
+                            objectPosition: "50% 25%", // 可选：调整图片在容器中的位置
+                            display: "block", // 移除图片底部间隙
+                          }}
+                        />
+                      </div>
                       <div
                         style={{
                           marginBottom: 4,
-                          fontSize: 9,
+                          fontSize: 7,
+                          fontWeight: 700,
                           textAlign: "center",
                           lineHeight: 1.3,
                         }}
@@ -419,7 +433,8 @@ const Page1: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: 9,
+                          fontSize: 7,
+                          fontWeight: 700,
                           textAlign: "center",
                           lineHeight: 1.3,
                         }}
@@ -454,33 +469,40 @@ const Page1: React.FC = () => {
                 如果是团支部委员会，显示：现有团员xx名，预备团委xx名，平均年龄xx岁；现有青工（35岁及以下）xx名。 */}
                 <div
                   style={{
-                    width: "70%",
-                    backgroundColor: "#ffffff",
-                    borderRadius: 8,
                     padding: "0px 12px",
-                    margin: "0 auto",
-                    marginTop: 8,
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                    border: "1px solid #e5e7eb",
+                    margin: "8px 32px 0px",
+                    fontWeight: 700,
                   }}
                 >
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 10,
                       lineHeight: 1.6,
                       color: "#374151",
-                      textAlign: "center",
                     }}
                   >
                     {(() => {
-                      const stats = basicInfoNums[0] || {};
+                      // const stats = basicInfoNums[0] || {};
                       switch (item.title) {
                         case "党支部委员会":
-                          return `现有党员${stats.partyNum1 || 0}名，其中预备党员${stats.partyNum2 || 0}名，平均年龄${stats.partyNum3 || 0}岁；现有发展党员${stats.partyNum4 || 0}名，入党积极分子${stats.partyNum5 || 0}名，递交入党申请书${stats.partyNum6 || 0}名。`;
+                          return "现有党员17名，其中预备党员4名，平均年龄37岁；现有发展党员2名，入党积极分子4名，递交入党申请书6名。"
+                          // return (
+                          //   <>
+                          //     现有党员{stats.partyNum1 || 0}名，其中预备党员
+                          //     {stats.partyNum2 || 0}名，平均年龄
+                          //     {stats.partyNum3 || 0}岁；
+                          //     <br />
+                          //     现有发展党员{stats.partyNum4 || 0}名，入党积极分子
+                          //     {stats.partyNum5 || 0}名，递交入党申请书
+                          //     {stats.partyNum6 || 0}名。
+                          //   </>
+                          // );
                         case "车间分会委员会":
-                          return `现有班组${stats.cheNum1 || 0}个，分会会员${stats.cheNum2 || 0}名。`;
+                          // return `现有班组${stats.cheNum1 || 0}个，分会会员${stats.cheNum2 || 0}名。`;
+                          return "车间分会下设4个工会小组，现有工会会员2人，其中：管理人员2名，专业技术人员1名，班组长12名，一线职工47名。"
                         case "团支部委员会":
-                          return `现有团员${stats.tuanNum1 || 0}名，预备团委${stats.tuanNum2 || 0}名，平均年龄${stats.tuanNum3 || 0}岁；现有青工（35岁及以下）${stats.tuanNum4 || 0}名。`;
+                          // return `现有团员${stats.tuanNum1 || 0}名，预备团委${stats.tuanNum2 || 0}名，平均年龄${stats.tuanNum3 || 0}岁；现有青工（35岁及以下）${stats.tuanNum4 || 0}名。`;
+                          return "车间团支部下设6个团小组现有团员13人，14~28周岁青年20人，35周岁以下青年2人。"
                         default:
                           return "";
                       }
@@ -491,7 +513,7 @@ const Page1: React.FC = () => {
             ))}
 
             {/* 考核本支部结果表格 */}
-            <div style={{ marginTop: 16 }}>
+            <div>
               <div
                 style={{
                   fontSize: 20,
