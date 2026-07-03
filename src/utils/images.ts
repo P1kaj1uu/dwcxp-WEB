@@ -12,6 +12,7 @@ import xfgImg from '@/assets/images/xfg.png' // 先锋岗
 import siYouImg from '@/assets/images/siyou.png' // 四优党员
 import bgImg from '@/assets/images/bg.png' // 背景图
 import hbgIcon from '@/assets/images/hbgIcon.png'
+import myImg from '@/assets/images/my.jpeg'
 
 // 导出所有图片
 export const logoImage = logoImg
@@ -24,3 +25,4 @@ export const xfgImage = xfgImg
 export const siYouImage = siYouImg
 export const bgImage = bgImg
 export const hbgIconImage = hbgIcon
+export const myImage = myImg

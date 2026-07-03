@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Table, Form } from "antd";
+import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getEvaluationListApi } from "@/api/evaluation";
+import { getEvaluationResultList } from "@/api/evaluationResult";
 import { getPartyBranchEvaluationListApi } from "@/api/partyBranchEvaluation";
 import {
   dbgImage,
@@ -13,6 +14,7 @@ import {
   siYouImage,
   bgImage,
   hbgIconImage,
+  myImage,
 } from "@/utils/images";
 
 interface TableRowData {
@@ -26,7 +28,11 @@ interface TableRowData {
 interface PartyBranchRowData {
   key: string;
   partyBranch: string;
-  level: string;
+  one: string;
+  two: string;
+  three: string;
+  four: string;
+  years: string;
 }
 
 interface RawDataItem {
@@ -135,7 +141,7 @@ const getPartyBranchLevelStyle = (value: string) => {
 // 转换数据：将后端返回的数据转换为表格行数据（只包含当前季度）
 const transformToTableData = (data: RawDataItem[]): TableRowData[] => {
   return data.map((item, index) => ({
-    key: `${item.name}_${index}`,
+    key: `${item.name}_${item.id || index}`,
     name: item.name,
     post: item.responsibilityPost || "",
     area: item.responsibilityArea || "",
@@ -143,13 +149,38 @@ const transformToTableData = (data: RawDataItem[]): TableRowData[] => {
   }));
 };
 
-// 转换党小组数据
+// 转换党小组数据：将后端返回的数据按党小组和季度进行透视
 const transformToPartyBranchData = (data: PartyBranchRawItem[]): PartyBranchRowData[] => {
-  return data.map((item, index) => ({
-    key: `${item.partyBranch}_${index}`,
-    partyBranch: item.partyBranch,
-    level: item.level || "",
-  }));
+  const groupedData: { [key: string]: PartyBranchRowData } = {};
+  
+  data.forEach((item) => {
+    if (!groupedData[item.partyBranch]) {
+      groupedData[item.partyBranch] = {
+        key: item.partyBranch,
+        partyBranch: item.partyBranch,
+        one: "-",
+        two: "-",
+        three: "-",
+        four: "-",
+        years: "-",
+      };
+    }
+    
+    const quarter = item.quarter;
+    const level = item.level || "-";
+    
+    if (quarter === "一季度") {
+      groupedData[item.partyBranch].one = level;
+    } else if (quarter === "二季度") {
+      groupedData[item.partyBranch].two = level;
+    } else if (quarter === "三季度") {
+      groupedData[item.partyBranch].three = level;
+    } else if (quarter === "四季度") {
+      groupedData[item.partyBranch].four = level;
+    }
+  });
+  
+  return Object.values(groupedData);
 };
 
 // 生成表格列配置（只展示当前季度）
@@ -164,7 +195,6 @@ const generateColumns = (quarter: string): ColumnsType<TableRowData> => {
     },
   ];
 
-  // 当前季度的列
   columns.push({
     title: quarter,
     children: [
@@ -198,31 +228,44 @@ const generateColumns = (quarter: string): ColumnsType<TableRowData> => {
   return columns;
 };
 
-// 生成党小组表格列配置（显示等级level）
-const generatePartyBranchEvaluationColumns = (quarter: string): ColumnsType<PartyBranchRowData> => {
-  const columns: ColumnsType<PartyBranchRowData> = [
-    {
-      title: "党小组",
-      dataIndex: "partyBranch",
-      key: "partyBranch",
-      width: 120,
-      fixed: "left",
-    },
-    {
-      title: quarter,
-      dataIndex: "level",
-      key: "level",
-      width: 120,
-      render: (value: string) => getPartyBranchLevelStyle(value),
-    },
-  ];
-
-  return columns;
+// 表头红色背景样式
+// @ts-ignore
+const tableHeaderStyle = {
+  background: '#ff0000',
+  color: '#ffffff',
 };
 
+const evaluationColumns = [
+  {
+    title: "一季度",
+    dataIndex: "one",
+    key: "one",
+  },
+  {
+    title: "二季度",
+    dataIndex: "two",
+    key: "two",
+  },
+  {
+    title: "三季度",
+    dataIndex: "three",
+    key: "three",
+  },
+  {
+    title: "四季度",
+    dataIndex: "four",
+    key: "four",
+  },
+  {
+    title: "上年度",
+    dataIndex: "years",
+    key: "years",
+  },
+];
+
 const Page2: React.FC = () => {
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [evaluationResults, setEvaluationResults] = useState<any[]>([]);
   const [dataSource, setDataSource] = useState<RawDataItem[]>([]);
   const [partyBranchEvaluation, setPartyBranchEvaluation] = useState<PartyBranchRawItem[]>([]);
   const [currentQuarter, setCurrentQuarter] = useState<string>("");
@@ -253,7 +296,6 @@ const Page2: React.FC = () => {
   const fetchTableData = async (params?: any) => {
     setLoading(true);
     try {
-      const values = form.getFieldsValue();
       const { year, quarter } = getCurrentYearAndQuarter();
       setCurrentQuarter(quarter);
 
@@ -262,20 +304,39 @@ const Page2: React.FC = () => {
         pageSize: tableParams.pagination.pageSize,
         year: year,
         quarter: quarter,
-        ...values,
         ...params,
       };
 
-      const [res, res1] = await Promise.all([
-        getEvaluationListApi(queryParams),
-        getPartyBranchEvaluationListApi(queryParams)
+      const queryEvaluationParams = {
+        pageNum: 1,
+        pageSize: 6,
+        year: year,
+        // quarter: quarter,
+        ...params,
+      };
+
+      const queryNotQuarterParams = {
+        pageNum: tableParams.pagination.current,
+        pageSize: tableParams.pagination.pageSize,
+        year: year,
+        ...params,
+      };
+
+      const [res, res1, res2] = await Promise.all([
+        getEvaluationListApi(queryEvaluationParams),
+        getPartyBranchEvaluationListApi(queryNotQuarterParams),
+        getEvaluationResultList(queryParams)
       ]);
 
       if (res.data.code === 200) {
         setDataSource(res.data.data.list || []);
       }
       if (res1.data.code === 200) {
+        console.log(res1.data.data.list);
         setPartyBranchEvaluation(res1.data.data.list || []);
+      }
+      if (res2.data.code === 200) {
+        setEvaluationResults(res2.data.data.list || []);
       }
       setTableParams({
         ...tableParams,
@@ -287,6 +348,7 @@ const Page2: React.FC = () => {
     } catch (error) {
       setDataSource([]);
       setPartyBranchEvaluation([]);
+      setEvaluationResults([]);
       console.error("获取数据失败:", error);
     } finally {
       setLoading(false);
@@ -299,33 +361,78 @@ const Page2: React.FC = () => {
     }
   }, [tableParams.pagination.current, tableParams.pagination.pageSize]);
 
-  // 将后端返回的数据转换为表格展示格式
+  // @ts-ignore
   const tableData = useMemo(
     () => transformToTableData(dataSource),
     [dataSource],
   );
 
-  // 党小组表格数据
   const partyBranchTableData = useMemo(
     () => transformToPartyBranchData(partyBranchEvaluation),
     [partyBranchEvaluation],
   );
 
-  // 动态生成列配置
+  // @ts-ignore
   const columns = useMemo(
     () => generateColumns(currentQuarter || "一季度"),
     [currentQuarter],
   );
 
-  // 党小组评议表格列配置
-  const partyBranchEvaluationColumns = useMemo(
-    () => generatePartyBranchEvaluationColumns(currentQuarter || "一季度"),
-    [currentQuarter],
-  );
+  // 光荣榜数据：最多 6 个，从 dataSource 取
+  const honorBoard = useMemo(() => dataSource.slice(0, 6), [dataSource]);
+
+  // 为列添加表头样式
+  const styledEvaluationColumns = evaluationColumns.map(col => ({
+    ...col,
+    title: <span style={{ color: '#ffffff' }}>{col.title}</span>,
+  }));
+
+  const styledPartyBranchColumns: ColumnsType<PartyBranchRowData> = [
+    {
+      title: <span style={{ color: '#ffffff' }}>党小组名称</span>,
+      dataIndex: "partyBranch",
+      key: "partyBranch",
+      width: 96,
+    },
+    {
+      title: <span style={{ color: '#ffffff' }}>一季度</span>,
+      dataIndex: "one",
+      key: "one",
+      width: 50,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+    {
+      title: <span style={{ color: '#ffffff' }}>二季度</span>,
+      dataIndex: "two",
+      key: "two",
+      width: 50,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+    {
+      title: <span style={{ color: '#ffffff' }}>三季度</span>,
+      dataIndex: "three",
+      key: "three",
+      width: 50,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+    {
+      title: <span style={{ color: '#ffffff' }}>四季度</span>,
+      dataIndex: "four",
+      key: "four",
+      width: 50,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+    {
+      title: <span style={{ color: '#ffffff' }}>上年度</span>,
+      dataIndex: "years",
+      key: "years",
+      width: 50,
+      render: (value: string) => getPartyBranchLevelStyle(value),
+    },
+  ];
 
   return (
     <>
-      {/* 创岗建区评比一览表 */}
       <div
         style={{
           position: "fixed",
@@ -346,7 +453,6 @@ const Page2: React.FC = () => {
           alignItems: "center",
         }}
       >
-        {/* 标题图片 - 带黄色文字 */}
         <div
           style={{
             position: "relative",
@@ -359,7 +465,7 @@ const Page2: React.FC = () => {
         >
           <img
             src={hbgIconImage}
-            alt="创岗建区评区一览表"
+            alt="考核评比"
             style={{
               width: "auto",
               height: 50,
@@ -380,50 +486,191 @@ const Page2: React.FC = () => {
               letterSpacing: 2,
             }}
           >
-            创岗建区评区一览表
+            考核评比
           </div>
         </div>
 
         <div
-          className="flex-1 rounded-lg overflow-auto"
+          className="flex-1 overflow-hidden"
           style={{
             width: "720px",
             maxHeight: "430px",
             background:
               "linear-gradient(to right, #fbe5d3, #fefceb, #fef1de, #f3d4c7)",
             padding: "12px",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
               display: "flex",
-              justifyContent: "space-around",
-              // background: "#fff",
+              flexDirection: "row",
+              gap: "20px",
               borderRadius: 12,
-              overflow: "auto",
+              alignItems: "flex-start",
             }}
           >
-            <Table
-              columns={columns}
-              dataSource={tableData}
-              loading={loading}
-              bordered
-              pagination={false}
-              scroll={{ x: "max-content" }}
-              size="small"
-            />
-            <Table
-              columns={partyBranchEvaluationColumns}
-              dataSource={partyBranchTableData}
-              loading={loading}
-              bordered
-              pagination={false}
-              scroll={{ x: "max-content" }}
-              size="small"
-            />
+            {/* 左侧光荣榜区 */}
+            <div
+              style={{
+                flex: "0 0 360px",
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "8px",
+              }}
+            >
+              {honorBoard.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    width: "100%",
+                    overflow: "hidden",
+                    background: "#fff",
+                    borderRadius: 0,
+                  }}
+                >
+                  <img
+                    src={myImage}
+                    alt={item.name}
+                    style={{
+                      width: "100%",
+                      height: 110,
+                      objectFit: "cover",
+                      objectPosition: "50% 25%",
+                      display: "block",
+                    }}
+                  />
+                  <div
+                    style={{
+                      background: "#a73300",
+                      color: "#ffffff",
+                      textAlign: "center",
+                      padding: "6px 4px",
+                      fontWeight: "bold",
+                      fontSize: 13,
+                    }}
+                  >
+                    {item.name}
+                  </div>
+                  <div
+                    style={{
+                      padding: "6px 4px",
+                      fontSize: 11,
+                      lineHeight: 1.6,
+                      color: "#333",
+                    }}
+                  >
+                    {item.responsibilityPost && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                        <span style={{ color: "red" }}>★</span>
+                        <span>{item.responsibilityPost}</span>
+                      </div>
+                    )}
+                    {item.good && item.good !== "否" && item.good !== "x" && item.good !== "X" && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                        <img src={siYouImage} alt="四优" style={{ width: 11, height: 11 }} />
+                        <span>四优党员</span>
+                      </div>
+                    )}
+                    {item.responsibilityArea && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                        <img src={hqqImage} alt="红旗区" style={{ width: 11, height: 11 }} />
+                        <span>{item.responsibilityArea}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 右侧考核结果区 */}
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
+              {/* 本支部考核结果 */}
+              <div>
+                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                  本支部考核结果
+                </div>
+                <Table
+                  columns={styledEvaluationColumns}
+                  dataSource={evaluationResults}
+                  loading={loading}
+                  bordered
+                  pagination={false}
+                  scroll={{ x: "max-content" }}
+                  size="small"
+                  rowKey="id"
+                  className="red-header-table"
+                  style={{
+                    width: "100%",
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+
+              {/* 党小组考核结果 */}
+              <div>
+                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                  党小组考核结果
+                </div>
+                <Table
+                  columns={styledPartyBranchColumns}
+                  dataSource={partyBranchTableData}
+                  loading={loading}
+                  bordered
+                  pagination={false}
+                  size="small"
+                  rowKey="key"
+                  className="red-header-table"
+                  style={{
+                    width: "100%",
+                    tableLayout: "fixed",
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* 全局样式 - 设置表头背景为红色 */}
+      <style>{`
+        .red-header-table,
+        .red-header-table .ant-table,
+        .red-header-table .ant-table-container,
+        .red-header-table .ant-table-content,
+        .red-header-table .ant-table-header,
+        .red-header-table .ant-table-thead,
+        .red-header-table .ant-table-thead > tr,
+        .red-header-table .ant-table-thead > tr > th {
+          border-radius: 0 !important;
+        }
+        .red-header-table .ant-table-thead > tr > th {
+          background: #a73300 !important;
+          color: #ffffff !important;
+          font-weight: bold;
+          text-align: center;
+        }
+        .red-header-table .ant-table-thead > tr > th .ant-table-column-title {
+          color: #ffffff !important;
+        }
+        /* 如果有嵌套表头（子列），也应用红色背景 */
+        .red-header-table .ant-table-thead > tr > th.ant-table-cell {
+          background: #a73300 !important;
+          color: #ffffff !important;
+        }
+        /* 表头悬停效果保持不变 */
+        .red-header-table .ant-table-thead > tr > th:hover {
+          background: #a73300 !important;
+        }
+      `}</style>
     </>
   );
 };

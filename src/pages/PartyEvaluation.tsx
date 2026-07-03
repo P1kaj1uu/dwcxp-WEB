@@ -19,6 +19,7 @@ interface EvaluationItem {
   responsibilityPost?: string
   responsibilityArea?: string
   good?: string
+  safetyStar?: string
   comments?: string
 }
 
@@ -145,6 +146,7 @@ const PartyEvaluation: React.FC = () => {
     let data = {
       ...record,
       good: (record.good && record.good !== '否') ? '是' : '否',
+      safetyStar: (record.safetyStar && record.safetyStar !== '否') ? '是' : '否',
     }
     setEditId(record.id as any)
     setModalTitle('编辑党员评议信息')
@@ -188,14 +190,19 @@ const handleBatchUpload = async (file: File) => {
     // 解析数据
     const parsedData = parseExcelData(rawData)
     console.log('解析后的数据:', parsedData)
-    if (parsedData.length !== 0) {
-      const res = await batchAddEvaluationApi(parsedData)
-      if (res.data.code === 200) {
-        message.success(`批量新增成功，共导入${parsedData.length}条数据`)
-        fetchTableData()
-      } else {
-        message.error('批量新增失败，请稍后重试')
-      }
+    
+    if (parsedData.length === 0) {
+      message.warning('未解析到有效数据，请检查Excel格式')
+      return
+    }
+    
+    // 批量提交数据
+    const res = await batchAddEvaluationApi(parsedData)
+    if (res.data.code === 200) {
+      message.success(`批量新增成功，共导入${parsedData.length}条数据`)
+      fetchTableData()
+    } else {
+      message.error(res.data.msg || '批量新增失败，请稍后重试')
     }
   }
   reader.onerror = () => {
@@ -207,24 +214,26 @@ const handleBatchUpload = async (file: File) => {
 // 解析Excel数据 - 横向季度数据转纵向记录
 const parseExcelData = (rawData: any[][]): any[] => {
   if (!rawData || rawData.length < 5) {
-    message.warning('Excel 文件格式不正确')
+    message.warning('Excel 文件格式不正确，请使用标准模板')
     return []
   }
 
   // 第2行（索引1）：获取党支部名称和年份季度信息
   const infoRow = rawData[1] || []
-  const infoText = infoRow[0] || ''
+  const infoText = infoRow[0] ? infoRow[0].toString() : ''
   console.log('信息行:', infoText)
 
   // 解析党支部名称
   let partyBranch = ''
-  const branchMatch = infoText.match(/名称[：:]\s*([^\s]+?)(?:\s|年|$)/)
+  const branchMatch = infoText.match(/名称[：:]\s*([^\s年]+?)(?:\s|年|$)/)
   if (branchMatch) {
     partyBranch = branchMatch[1].trim()
   } else {
+    // 备用匹配：匹配 "XXX党支部"
     const defaultMatch = infoText.match(/([^\s]+党支部)/)
     if (defaultMatch) partyBranch = defaultMatch[1]
   }
+
 
   // 解析年份
   let year = ''
@@ -233,19 +242,70 @@ const parseExcelData = (rawData: any[][]): any[] => {
     year = yearMatch[1]
   }
   
-  // 构建列映射：每个季度有3列（岗、区、四优）
-  // 一季度：列1-3 (索引1,2,3)
-  // 二季度：列4-6 (索引4,5,6)
-  // 三季度：列7-9 (索引7,8,9)
-  // 四季度：列10-12 (索引10,11,12)
-  const quarters = [
-    { name: '一季度', startCol: 1, endCol: 3 },   // 岗(1), 区(2), 四优(3)
-    { name: '二季度', startCol: 4, endCol: 6 },   // 岗(4), 区(5), 四优(6)
-    { name: '三季度', startCol: 7, endCol: 9 },   // 岗(7), 区(8), 四优(9)
-    { name: '四季度', startCol: 10, endCol: 12 }  // 岗(10), 区(11), 四优(12)
-  ]
+  // 如果年份未解析到，尝试从第3行表头获取
+  if (!year) {
+    const headerRow = rawData[2] || []
+    for (let col of headerRow) {
+      if (col) {
+        const str = col.toString()
+        const match = str.match(/(\d{4})\s*年/)
+        if (match) {
+          year = match[1]
+          break
+        }
+      }
+    }
+  }
 
-  // 数据从第5行开始（索引4）
+  // 获取表头行（索引2），确定各列位置
+  const headerRow = rawData[2] || []
+  console.log('表头行:', headerRow)
+  
+  // 构建列映射：每个季度有4列（岗、区、党员安全之星、四优党员）
+  // 根据实际表头动态映射
+  const quarterMap: { [key: string]: { startCol: number, endCol: number } } = {}
+  
+  // 查找各季度在表头中的位置
+  const quarterNames = ['一季度', '二季度', '三季度', '四季度']
+  let currentQuarter = ''
+  let startCol = -1
+  
+  for (let i = 0; i < headerRow.length; i++) {
+    const cell = headerRow[i] ? headerRow[i].toString().trim() : ''
+    if (!cell) continue
+    
+    // 检查是否是季度名称
+    const quarterIndex = quarterNames.findIndex(q => cell.includes(q))
+    if (quarterIndex !== -1) {
+      // 如果之前有季度，记录结束位置
+      if (currentQuarter && startCol !== -1) {
+        quarterMap[currentQuarter] = { startCol, endCol: i - 1 }
+      }
+      currentQuarter = cell
+      startCol = i
+    }
+  }
+  
+  // 记录最后一个季度
+  if (currentQuarter && startCol !== -1) {
+    quarterMap[currentQuarter] = { startCol, endCol: headerRow.length - 1 }
+  }
+  
+  console.log('季度列映射:', quarterMap)
+
+  // 备用映射：如果动态解析失败，使用固定列索引
+  const fallbackQuarters: { [key: string]: { startCol: number, endCol: number } } = {
+    '一季度': { startCol: 1, endCol: 4 },
+    '二季度': { startCol: 5, endCol: 8 },
+    '三季度': { startCol: 9, endCol: 12 },
+    '四季度': { startCol: 13, endCol: 16 }
+  }
+  
+  // 使用成功解析的映射，否则使用备用
+  const finalQuarterMap = Object.keys(quarterMap).length > 0 ? quarterMap : fallbackQuarters
+  console.log('最终季度映射:', finalQuarterMap)
+
+  // 数据从第5行开始（索引4），跳过前面的标题行、信息行、表头行
   const result: any[] = []
   
   for (let i = 4; i < rawData.length; i++) {
@@ -258,24 +318,30 @@ const parseExcelData = (rawData: any[][]): any[] => {
       name = row[0].toString().trim()
     }
     
-    // 跳过空行、注释行
-    if (!name || name === '' || name === '……' || name.includes('注：')) continue
+    // 跳过空行、注释行、合计行
+    if (!name || name === '' || name === '……' || name === '合计' || name.includes('注：')) continue
     
     // 遍历四个季度
-    for (const quarter of quarters) {
-      // 获取岗、区、四优的值
-      const postValue = row[quarter.startCol] ? row[quarter.startCol].toString().trim() : ''      // 岗
-      const areaValue = row[quarter.startCol + 1] ? row[quarter.startCol + 1].toString().trim() : ''  // 区
-      const goodValue = row[quarter.startCol + 2] ? row[quarter.startCol + 2].toString().trim() : ''  // 四优
+    for (const [quarterName, colRange] of Object.entries(finalQuarterMap)) {
+      const { startCol } = colRange
       
-      // 如果该季度没有任何数据，跳过（可选：如果三个字段都为空则跳过）
-      const hasData = postValue || areaValue || goodValue
+      // 确保列索引在有效范围内
+      if (startCol >= row.length) continue
+      
+      // 获取岗、区、党员安全之星、四优党员的值
+      // 列顺序：岗(startCol), 区(startCol+1), 党员安全之星(startCol+2), 四优党员(startCol+3)
+      const postValue = row[startCol] ? row[startCol].toString().trim() : ''
+      const areaValue = row[startCol + 1] ? row[startCol + 1].toString().trim() : ''
+      const safetyStarValue = row[startCol + 2] ? row[startCol + 2].toString().trim() : ''
+      const goodValue = row[startCol + 3] ? row[startCol + 3].toString().trim() : ''
+      
+      // 如果该季度没有任何数据，跳过
+      const hasData = postValue || areaValue || safetyStarValue || goodValue
       if (!hasData) continue
       
       // 解析责任岗格次
       let responsibilityPost = ''
       if (postValue) {
-        // 支持数字映射：1=先锋岗, 2=达标岗, 3=警示岗
         if (postValue === '1') responsibilityPost = '先锋岗'
         else if (postValue === '2') responsibilityPost = '达标岗'
         else if (postValue === '3') responsibilityPost = '警示岗'
@@ -285,45 +351,54 @@ const parseExcelData = (rawData: any[][]): any[] => {
       // 解析责任区格次
       let responsibilityArea = ''
       if (areaValue) {
-        // 支持数字映射：4=红旗区, 5=达标区, 6=警示区
         if (areaValue === '4') responsibilityArea = '红旗区'
         else if (areaValue === '5') responsibilityArea = '达标区'
         else if (areaValue === '6') responsibilityArea = '警示区'
         else responsibilityArea = areaValue
       }
       
-      // 解析四优评价
+      // 解析党员安全之星
+      let safetyStar = ''
+      if (safetyStarValue) {
+        if (['√', '是', '✓', '✔', '1'].includes(safetyStarValue)) {
+          safetyStar = '是'
+        } else if (['×', '否', '✗', '0'].includes(safetyStarValue)) {
+          safetyStar = '否'
+        } else {
+          safetyStar = safetyStarValue
+        }
+      }
+      
+      // 解析四优党员
       let good = ''
       if (goodValue) {
-        // 支持 √、是、✓、✔ 等标记
-        if (goodValue === '√' || goodValue === '是' || goodValue === '✓' || goodValue === '✔') {
+        if (['√', '是', '✓', '✔', '1'].includes(goodValue)) {
           good = '是'
-        } else if (goodValue === '×' || goodValue === '否' || goodValue === '✗') {
+        } else if (['×', '否', '✗', '0'].includes(goodValue)) {
           good = '否'
         } else {
           good = goodValue
         }
       }
       
-      // 添加记录
-      result.push({
-        year,
-        quarter: quarter.name,
-        partyBranch,
-        name,
-        responsibilityPost,   // 岗
-        responsibilityArea,   // 区
-        good                  // 四优
-      })
+      // 构建记录对象（根据你的接口字段调整）
+      const record: any = {
+        year: year || '2026年',
+        quarter: quarterName,
+        partyBranch: partyBranch || '待填写党支部',
+        name: name,
+        responsibilityPost: responsibilityPost,
+        responsibilityArea: responsibilityArea,
+        good: good,
+        safetyStar: safetyStar,  // 如果接口有这个字段，保留；否则可忽略
+        comments: '' // 如果有默认点评意见可填写
+      }
+      
+      result.push(record)
     }
   }
   
   console.log(`解析完成，共${result.length}条数据`)
-  
-  if (result.length === 0) {
-    message.warning('未解析到有效数据，请检查Excel格式')
-  }
-  
   return result
 }
 
@@ -410,6 +485,13 @@ const parseExcelData = (rawData: any[][]): any[] => {
       dataIndex: 'good',
       key: 'good',
       width: 100,
+      render: (text: any) => (text !== '否' && text) ? '是' : '否',
+    },
+    {
+      title: '党员安全之星',
+      dataIndex: 'safetyStar',
+      key: 'safetyStar',
+      width: 150,
       render: (text: any) => (text !== '否' && text) ? '是' : '否',
     },
     {
@@ -603,6 +685,17 @@ const parseExcelData = (rawData: any[][]): any[] => {
             rules={[{ required: true, message: '请选择是否四优' }]}
           >
             <Select placeholder="请选择是否四优">
+              <Select.Option value="是">是</Select.Option>
+              <Select.Option value="否">否</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="safetyStar"
+            label="党员安全之星"
+            rules={[{ required: true, message: '请选择是否党员安全之星' }]}
+          >
+            <Select placeholder="请选择是否党员安全之星">
               <Select.Option value="是">是</Select.Option>
               <Select.Option value="否">否</Select.Option>
             </Select>
