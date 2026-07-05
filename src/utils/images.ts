@@ -13,6 +13,9 @@ import siYouImg from '@/assets/images/siyou.png' // 四优党员
 import bgImg from '@/assets/images/bg.png' // 背景图
 import hbgIcon from '@/assets/images/hbgIcon.png'
 import myImg from '@/assets/images/my.jpeg'
+import danghuiImg from '@/assets/images/danghui.png' // 党徽
+import tuanhuiImg from '@/assets/images/tuanhui.jpg' // 团徽
+import gonghuiImg from '@/assets/images/gonghui.png' // 工徽
 
 // 导出所有图片
 export const logoImage = logoImg
@@ -26,3 +29,6 @@ export const siYouImage = siYouImg
 export const bgImage = bgImg
 export const hbgIconImage = hbgIcon
 export const myImage = myImg
+export const danghuiImage = danghuiImg
+export const tuanhuiImage = tuanhuiImg
+export const gonghuiImage = gonghuiImg

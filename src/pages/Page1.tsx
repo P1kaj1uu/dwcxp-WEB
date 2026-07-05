@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getBasicByTypeApi } from "@/api/basic";
 import { getEvaluationResultList } from "@/api/evaluationResult";
 import { getBasicInfoNumList } from "@/api/basicInfoNum";
-import { hbgIconImage, bgImage } from "@/utils/images";
+import { hbgIconImage, bgImage, danghuiImage, tuanhuiImage, gonghuiImage } from "@/utils/images";
 import { Skeleton } from "antd";
 
 interface Member {
@@ -16,18 +16,20 @@ interface Member {
 interface GroupedData {
   title: string;
   content: Member[];
+  image: string | null;
 }
 
 const Page1: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
+  // @ts-ignore
   const [evaluationResults, setEvaluationResults] = useState<any[]>([]);
   // const [basicInfoNums, setBasicInfoNums] = useState<any[]>([]);
 
   const departmentOptions = [
-    { label: "党支部委员会", value: "党支部委员会" },
-    { label: "车间分会委员会", value: "车间分会委员会" },
-    { label: "团支部委员会", value: "团支部委员会" },
+    { label: "党支部委员会", value: "党支部委员会", image: danghuiImage },
+    { label: "车间分会委员会", value: "车间分会委员会", image: gonghuiImage },
+    { label: "团支部委员会", value: "团支部委员会", image: tuanhuiImage },
   ];
 
   // 骨架屏显示状态
@@ -114,6 +116,7 @@ const Page1: React.FC = () => {
 
       // 按部门分组
       const groups = groupByType(allMembers);
+      console.log("分组后的数据:", groups);
       setGroupedData(groups);
     } catch (error) {
       console.error("获取数据失败:", error);
@@ -150,6 +153,7 @@ const Page1: React.FC = () => {
       .map((key) => ({
         title: key,
         content: groups[key],
+        image: departmentOptions.find((opt) => opt.value === key)?.image || null,
       }));
   };
 
@@ -230,24 +234,6 @@ const Page1: React.FC = () => {
             </div>
           </div>
         ))}
-
-        {/* 考核结果表格骨架 */}
-        <div style={{ marginTop: 16 }}>
-          <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <Skeleton.Input
-              active
-              size="small"
-              style={{ width: 120, height: 20 }}
-            />
-          </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Skeleton.Button
-              active
-              size="default"
-              style={{ width: "75%", height: 80 }}
-            />
-          </div>
-        </div>
       </>
     );
   };
@@ -350,6 +336,9 @@ const Page1: React.FC = () => {
               >
                 <div
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     fontSize: 20,
                     fontWeight: 700,
                     color: "#dc2626",
@@ -357,6 +346,17 @@ const Page1: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        width: 25,
+                        height: 25,
+                        marginRight: 8,
+                      }}
+                    />
+                  )}
                   {item.title}
                 </div>
                 <div
@@ -513,7 +513,7 @@ const Page1: React.FC = () => {
             ))}
 
             {/* 考核本支部结果表格 */}
-            <div>
+            {/* <div>
               <div
                 style={{
                   fontSize: 20,
@@ -643,7 +643,7 @@ const Page1: React.FC = () => {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> */}
           </>
         )}
       </div>
