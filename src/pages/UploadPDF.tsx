@@ -167,7 +167,7 @@ const UploadPDF: React.FC = () => {
     try {
       const res = await getShowMediaListApi()
       if (res.data.code === 200) {
-        let type = res.data.data.list[0].type
+        let type = res.data.data[0].type
         setShowType(type)
       }
     } catch (error) {
