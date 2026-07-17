@@ -5,6 +5,7 @@ import { ConfigProvider, Spin } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import NProgress from 'nprogress'
 import Home from './pages/Home'
+import ScaledContainer from './components/ScaledContainer'
 import PartyBasic from './pages/PartyBasic'
 import PartyEvaluation from './pages/PartyEvaluation'
 import PartyBranchEvaluation from './pages/PartyBranchEvaluation'
@@ -169,7 +170,7 @@ const AppContent: React.FC = () => {
         transition: 'padding-left 0.3s ease, padding-top 0.3s ease'
       }}>
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route path="/home" element={<ScaledContainer><Home /></ScaledContainer>} />
           <Route path="/party-basic" element={<PartyBasic />} />
           <Route path="/party-evaluation" element={<PartyEvaluation />} />
           <Route path="/party-branch-evaluation" element={<PartyBranchEvaluation />} />

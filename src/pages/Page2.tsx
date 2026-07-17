@@ -459,7 +459,7 @@ const Page2: React.FC = () => {
             alt="考核评比"
             style={{
               width: "100%",
-              height: "50px",
+              height: 44,
               objectFit: "contain",
             }}
           />
@@ -469,7 +469,7 @@ const Page2: React.FC = () => {
               top: "50%",
               left: "52%",
               transform: "translate(-50%, -50%)",
-              fontSize: '26px',
+              fontSize: 22,
               fontWeight: "bold",
               color: "#fbbf24",
               textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
@@ -485,10 +485,12 @@ const Page2: React.FC = () => {
           className="flex-1"
           style={{
             width: "100%",
-            maxHeight: "430px",
+            flex: 1,
+            minHeight: 0,
             background: "#fff",
-            padding: "12px",
+            padding: 12,
             boxSizing: "border-box",
+            overflow: "hidden",
           }}
         >
           <div
@@ -523,7 +525,7 @@ const Page2: React.FC = () => {
                     alt={item.name}
                     style={{
                       width: "100%",
-                      height: 110,
+                      height: 80,
                       objectFit: "cover",
                       objectPosition: "50% 25%",
                       display: "block",
@@ -534,18 +536,18 @@ const Page2: React.FC = () => {
                       background: "#a73300",
                       color: "#ffffff",
                       textAlign: "center",
-                      padding: "6px 4px",
+                      padding: "4px",
                       fontWeight: "bold",
-                      fontSize: '20px',
+                      fontSize: 14,
                     }}
                   >
                     {item.name}
                   </div>
                   <div
                     style={{
-                      padding: "6px 4px",
-                      fontSize: '16px',
-                      lineHeight: 1.6,
+                      padding: "4px",
+                      fontSize: 12,
+                      lineHeight: 1.4,
                       color: "#333",
                       display: 'flex',
                       flexDirection: 'column',
@@ -584,12 +586,12 @@ const Page2: React.FC = () => {
                 minWidth: 0,
                 display: "flex",
                 flexDirection: "column",
-                gap: "16px",
+                gap: 8,
               }}
             >
               {/* 本支部考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: '22px', color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: 4, fontSize: 16, color: 'red', textAlign: 'center' }}>
                   本支部考核结果
                 </div>
                 <Table
@@ -611,7 +613,7 @@ const Page2: React.FC = () => {
 
               {/* 党小组考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: '22px', color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: 4, fontSize: 16, color: 'red', textAlign: 'center' }}>
                   党小组考核结果
                 </div>
                 <Table

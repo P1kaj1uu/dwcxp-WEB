@@ -304,7 +304,7 @@ const PartyBranchEvaluation: React.FC = () => {
             label="年度"
             rules={[{ required: true, message: '请输入年度' }]}
           >
-            <Input placeholder="请输入年度，如：2026年" autoComplete="off" />
+            <Input placeholder="请输入年度，如：2026" autoComplete="off" />
           </Form.Item>
 
           <Form.Item

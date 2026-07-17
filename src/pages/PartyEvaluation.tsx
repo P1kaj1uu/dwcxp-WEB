@@ -383,7 +383,7 @@ const parseExcelData = (rawData: any[][]): any[] => {
       
       // 构建记录对象（根据你的接口字段调整）
       const record: any = {
-        year: year || '2026年',
+        year: year || '2026',
         quarter: quarterName,
         partyBranch: partyBranch || '待填写党支部',
         name: name,
@@ -623,7 +623,7 @@ const parseExcelData = (rawData: any[][]): any[] => {
             label="年度"
             rules={[{ required: true, message: '请输入年度' }]}
           >
-            <Input placeholder="请输入年度，如：2026年" autoComplete="off" />
+            <Input placeholder="请输入年度，如：2026" autoComplete="off" />
           </Form.Item>
 
           <Form.Item

@@ -249,7 +249,7 @@ const Page1: React.FC = () => {
         position: "relative",
         width: "100%",
         height: "100%",
-        overflow: "auto",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
@@ -274,7 +274,7 @@ const Page1: React.FC = () => {
           alt="基本情况"
           style={{
             width: "100%",
-            height: "50px",
+            height: 44,
             objectFit: "contain",
           }}
         />
@@ -284,7 +284,7 @@ const Page1: React.FC = () => {
             top: "50%",
             left: "52%",
             transform: "translate(-50%, -50%)",
-            fontSize: '26px',
+            fontSize: 22,
             fontWeight: "bold",
             color: "#fbbf24",
             textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
@@ -301,11 +301,13 @@ const Page1: React.FC = () => {
         style={{
           display: "flex",
           flexDirection: "column",
-          flexShrink: 0,
+          flex: 1,
+          minHeight: 0,
           width: "100%",
           minWidth: 0,
           background: "#ffffe7",
-          padding: 20,
+          padding: 12,
+          gap: 8,
           boxSizing: "border-box",
         }}
       >
@@ -324,18 +326,19 @@ const Page1: React.FC = () => {
             {groupedData.map((item, index) => (
               <div
                 key={index}
-                className={index < 2 ? "mb-[50px]" : ""}
+                style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
               >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: '24px',
+                    fontSize: 18,
                     fontWeight: 700,
                     color: "#dc2626",
                     textAlign: "center",
-                    marginBottom: 8,
+                    marginBottom: 4,
+                    flexShrink: 0,
                   }}
                 >
                   {item.image && (
@@ -343,9 +346,9 @@ const Page1: React.FC = () => {
                       src={item.image}
                       alt={item.title}
                       style={{
-                        width: 25,
-                        height: 25,
-                        marginRight: 8,
+                        width: 20,
+                        height: 20,
+                        marginRight: 6,
                       }}
                     />
                   )}
@@ -356,7 +359,8 @@ const Page1: React.FC = () => {
                     display: "flex",
                     flexWrap: "wrap",
                     justifyContent: "center",
-                    gap: 3.86,
+                    gap: 4,
+                    flexShrink: 0,
                   }}
                 >
                   {item.content.map((member, idx) => (
@@ -368,7 +372,7 @@ const Page1: React.FC = () => {
                         flexDirection: "column",
                         alignItems: "flex-start",
                         border: "1px solid black",
-                        paddingBottom: "1px",
+                        paddingBottom: 0,
                         overflow: "hidden",
                       }}
                     >
@@ -376,7 +380,7 @@ const Page1: React.FC = () => {
                       <div
                         style={{
                           width: "100%",
-                          height: '150px',
+                          height: 90,
                           overflow: "hidden", // 防止图片溢出
                           flexShrink: 0, // 防止被压缩
                         }}
@@ -395,11 +399,11 @@ const Page1: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          marginBottom: 4,
-                          fontSize: '16px',
+                          marginBottom: 2,
+                          fontSize: 12,
                           fontWeight: 700,
                           textAlign: "center",
-                          lineHeight: 1.3,
+                          lineHeight: 1.2,
                         }}
                       >
                         姓名：
@@ -424,10 +428,10 @@ const Page1: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: '16px',
+                          fontSize: 12,
                           fontWeight: 700,
                           textAlign: "center",
-                          lineHeight: 1.3,
+                          lineHeight: 1.2,
                         }}
                       >
                         职务：
@@ -461,14 +465,14 @@ const Page1: React.FC = () => {
                 <div
                   style={{
                     padding: "0px 12px",
-                    margin: "8px 32px 0px",
+                    margin: "4px 24px 0px",
                     fontWeight: 700,
                   }}
                 >
                   <div
                     style={{
-                      fontSize: '16px',
-                      lineHeight: 1.6,
+                      fontSize: 12,
+                      lineHeight: 1.4,
                       color: "#374151",
                       textAlign: 'center'
                     }}

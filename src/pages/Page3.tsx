@@ -17,8 +17,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
         minWidth: 0,
         display: "flex",
         flexDirection: "column",
-        // 兜底：父容器没高度时，保证卡片有可显示尺寸
-        minHeight: 320,
+        minHeight: 0,
       }}
     >
       {/* 标题 */}
@@ -28,7 +27,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          marginBottom: 12,
+          marginBottom: 8,
           flexShrink: 0,
         }}
       >
@@ -37,7 +36,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
           alt={title}
           style={{
             width: "auto",
-            height: 50,
+            height: 40,
             objectFit: "fill",
           }}
         />
@@ -47,7 +46,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
             top: "60%",
             left: "60%",
             transform: "translate(-50%, -50%)",
-            fontSize: '26px',
+            fontSize: 20,
             fontWeight: "bold",
             color: "#fbbf24",
             textShadow: "1px 1px 2px rgba(0,0,0,0.3)",

@@ -30,7 +30,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: 28,
+      marginBottom: 8,
       flexShrink: 0,
     }}
   >
@@ -39,7 +39,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
       alt={text}
       style={{
         width: 'auto',
-        height: '50px',
+        height: 40,
         objectFit: 'contain',
       }}
     />
@@ -49,7 +49,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
         top: '60%',
         left: '55%',
         transform: 'translate(-50%, -50%)',
-        fontSize: '26px',
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#fbbf24',
         textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
@@ -160,21 +160,28 @@ const Page4: React.FC = () => {
       style={{
         width: '100%',
         height: '100%',
-        overflow: 'auto',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        background: "#f7eaca",
       }}
     >
       <div
-        className="flex gap-3 h-[430px] items-end p-[12px]"
         style={{
-          background: "#f7eaca",
+          display: "flex",
+          gap: 12,
+          width: "100%",
+          height: "100%",
+          alignItems: "stretch",
+          padding: 12,
+          boxSizing: "border-box",
+          minHeight: 0,
         }}
       >
         {/* 组织生活区域 */}
-        <div className="h-full flex-1 min-w-0 relative">
+        <div style={{ height: "100%", flex: 1, minWidth: 0, position: "relative", display: "flex", flexDirection: "column" }}>
           <SectionTitle text="组织生活" />
           <MediaCarousel
             mediaList={orgLifeMedia}
@@ -183,14 +190,15 @@ const Page4: React.FC = () => {
               border: '3px solid #fefefe',
               borderRadius: 8,
               overflow: 'hidden',
-              height: '80%',
+              flex: 1,
+              minHeight: 0,
               background: 'red',
             }}
           />
         </div>
 
         {/* 活动风采区域 */}
-        <div className="h-full flex-1 min-w-0 relative">
+        <div style={{ height: "100%", flex: 1, minWidth: 0, position: "relative", display: "flex", flexDirection: "column" }}>
           <SectionTitle text="活动风采" />
           <MediaCarousel
             mediaList={activityMedia}
@@ -199,7 +207,8 @@ const Page4: React.FC = () => {
               border: '3px solid #fefefe',
               borderRadius: 8,
               overflow: 'hidden',
-              height: '80%',
+              flex: 1,
+              minHeight: 0,
               background: 'red',
             }}
           />
