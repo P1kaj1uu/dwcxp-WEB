@@ -5,10 +5,6 @@ import { ConfigProvider, Spin } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import NProgress from 'nprogress'
 import Home from './pages/Home'
-import Page1 from './pages/Page1'
-import Page2 from './pages/Page2'
-import Page3 from './pages/Page3'
-import Page4 from './pages/Page4'
 import PartyBasic from './pages/PartyBasic'
 import PartyEvaluation from './pages/PartyEvaluation'
 import PartyBranchEvaluation from './pages/PartyBranchEvaluation'
@@ -174,10 +170,6 @@ const AppContent: React.FC = () => {
       }}>
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/page1" element={<Page1 />} />
-          <Route path="/page2" element={<Page2 />} />
-          <Route path="/page3" element={<Page3 />} />
-          <Route path="/page4" element={<Page4 />} />
           <Route path="/party-basic" element={<PartyBasic />} />
           <Route path="/party-evaluation" element={<PartyEvaluation />} />
           <Route path="/party-branch-evaluation" element={<PartyBranchEvaluation />} />

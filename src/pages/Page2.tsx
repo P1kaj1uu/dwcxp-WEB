@@ -12,7 +12,6 @@ import {
   jsqImage,
   xfgImage,
   siYouImage,
-  bgImage,
   hbgIconImage,
   myImage,
 } from "@/utils/images";
@@ -435,18 +434,9 @@ const Page2: React.FC = () => {
     <>
       <div
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          position: "relative",
           width: "100%",
           height: "100%",
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          overflow: "auto",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -459,26 +449,27 @@ const Page2: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginBottom: 16,
             flexShrink: 0,
+            width: "100%",
+            background: "#d92228",
           }}
         >
           <img
             src={hbgIconImage}
             alt="考核评比"
             style={{
-              width: "auto",
-              height: 50,
+              width: "100%",
+              height: "50px",
               objectFit: "contain",
             }}
           />
           <div
             style={{
               position: "absolute",
-              top: "60%",
-              left: "60%",
+              top: "50%",
+              left: "52%",
               transform: "translate(-50%, -50%)",
-              fontSize: 18,
+              fontSize: '26px',
               fontWeight: "bold",
               color: "#fbbf24",
               textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
@@ -491,12 +482,11 @@ const Page2: React.FC = () => {
         </div>
 
         <div
-          className="flex-1 overflow-hidden"
+          className="flex-1"
           style={{
-            width: "720px",
+            width: "100%",
             maxHeight: "430px",
-            background:
-              "linear-gradient(to right, #fbe5d3, #fefceb, #fef1de, #f3d4c7)",
+            background: "#fff",
             padding: "12px",
             boxSizing: "border-box",
           }}
@@ -513,7 +503,6 @@ const Page2: React.FC = () => {
             {/* 左侧光荣榜区 */}
             <div
               style={{
-                flex: "0 0 360px",
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
                 gap: "8px",
@@ -547,7 +536,7 @@ const Page2: React.FC = () => {
                       textAlign: "center",
                       padding: "6px 4px",
                       fontWeight: "bold",
-                      fontSize: 13,
+                      fontSize: '20px',
                     }}
                   >
                     {item.name}
@@ -555,25 +544,30 @@ const Page2: React.FC = () => {
                   <div
                     style={{
                       padding: "6px 4px",
-                      fontSize: 11,
+                      fontSize: '16px',
                       lineHeight: 1.6,
                       color: "#333",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
                     }}
                   >
                     {item.responsibilityPost && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                        <span style={{ color: "red" }}>★</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center', color: "red", width: '11px', height: '11px' }}>★</span>
                         <span>{item.responsibilityPost}</span>
                       </div>
                     )}
                     {item.good && item.good !== "否" && item.good !== "x" && item.good !== "X" && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <img src={siYouImage} alt="四优" style={{ width: 11, height: 11 }} />
                         <span>四优党员</span>
                       </div>
                     )}
                     {item.responsibilityArea && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <img src={hqqImage} alt="红旗区" style={{ width: 11, height: 11 }} />
                         <span>{item.responsibilityArea}</span>
                       </div>
@@ -595,7 +589,7 @@ const Page2: React.FC = () => {
             >
               {/* 本支部考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: '22px', color: 'red', textAlign: 'center' }}>
                   本支部考核结果
                 </div>
                 <Table
@@ -617,7 +611,7 @@ const Page2: React.FC = () => {
 
               {/* 党小组考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: '22px', color: 'red', textAlign: 'center' }}>
                   党小组考核结果
                 </div>
                 <Table

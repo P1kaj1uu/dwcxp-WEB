@@ -25,8 +25,9 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
 }) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [documentLoading, setDocumentLoading] = useState(true); // 文档加载状态
-  const [pageLoading, setPageLoading] = useState(true); // 页面渲染状态
+  // 只用一个 documentLoading 来表示"PDF 是否已经解析完成"。
+  // 取消 pageLoading：翻页时不再触发 loading 闪烁，避免抖动。
+  const [documentLoading, setDocumentLoading] = useState(true);
   const [error, setError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalCurrentPage, setModalCurrentPage] = useState(0);
@@ -35,8 +36,8 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // 是否显示 loading（文档加载中 或 页面渲染中 或 外部loading）
-  const isLoading = documentLoading || pageLoading || externalLoading;
+  // 是否显示 loading：只在首次文档加载时展示，翻页过程不展示
+  const isLoading = documentLoading || externalLoading;
   // 弹窗是否显示 loading
   const isModalLoading = modalDocumentLoading || modalPageLoading;
 
@@ -56,11 +57,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!isLoading && numPages > 0) {
+    if (!documentLoading && numPages > 0) {
       startAutoSwitch();
     }
     return () => stopAutoSwitch();
-  }, [isLoading, numPages, startAutoSwitch, stopAutoSwitch]);
+  }, [documentLoading, numPages, startAutoSwitch, stopAutoSwitch]);
 
   // 文档加载成功
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -72,18 +73,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
   // 文档加载失败
   const onDocumentLoadError = () => {
     setDocumentLoading(false);
-    setPageLoading(false);
     setError(true);
-  };
-
-  // 页面渲染成功
-  const onPageLoadSuccess = () => {
-    setPageLoading(false);
-  };
-
-  // 页面渲染失败
-  const onPageLoadError = () => {
-    setPageLoading(false);
   };
 
   // 弹窗文档加载成功
@@ -101,7 +91,6 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
   useEffect(() => {
     if (pdfUrl) {
       setDocumentLoading(true);
-      setPageLoading(true);
       setError(false);
       setCurrentIndex(0);
     }
@@ -115,26 +104,23 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
     }
   }, [modalVisible]);
 
+  // 翻页不再触发 pageLoading，避免每次切页都闪一下 loading
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     setCurrentIndex((prev) => (prev === 0 ? numPages - 1 : prev - 1));
-    // 切换页面时重置页面加载状态
-    setPageLoading(true);
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     setCurrentIndex((prev) => (prev === numPages - 1 ? 0 : prev + 1));
-    setPageLoading(true);
   };
 
   const handleDotClick = (e: React.MouseEvent, idx: number) => {
     e.stopPropagation();
     e.preventDefault();
     setCurrentIndex(idx);
-    setPageLoading(true);
   };
 
   const handleTitleClick = () => {
@@ -204,9 +190,6 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
           style={{
             flex: 1,
             position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             overflow: "hidden",
             minHeight: 0,
             minWidth: 0,
@@ -214,15 +197,12 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
           onMouseEnter={stopAutoSwitch}
           onMouseLeave={startAutoSwitch}
         >
-          {/* Loading 状态 */}
+          {/* Loading 状态：与 PDF 内容占同一高度，避免切换抖动 */}
           {isLoading && !error && (
             <div
               style={{
                 position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
+                inset: 0,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -239,9 +219,20 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
             </div>
           )}
 
-          {/* 错误状态 */}
+          {/* 错误状态：与 PDF 内容占同一高度，避免抖动 */}
           {error && (
-            <div style={{ color: "#ff4d4f", textAlign: "center" }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                color: "#ff4d4f",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
               <div>PDF 加载失败</div>
               <div style={{ fontSize: 12, marginTop: 4, color: "#999" }}>
@@ -250,17 +241,18 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
             </div>
           )}
 
-          {/* PDF 内容 */}
+          {/* PDF 内容：与 loading/error 同层叠放，避免布局跳动 */}
           {!error && (
             <div
               style={{
-                width: 280,
-                height: 200,
+                position: "absolute",
+                inset: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                opacity: isLoading ? 0.3 : 1,
-                transition: "opacity 0.3s",
+                opacity: isLoading ? 0 : 1,
+                // 关键：loading 刚消失时不渐变，避免切换瞬间的视觉抖动
+                transition: "none",
               }}
             >
               <Document
@@ -272,13 +264,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 <Page
                   onClick={handleTitleClick}
                   pageNumber={currentIndex + 1}
-                  width={280}
                   height={200}
                   renderTextLayer={true}
                   renderAnnotationLayer={true}
                   loading=""
-                  onLoadSuccess={onPageLoadSuccess}
-                  onLoadError={onPageLoadError}
+                  // 不再监听 page load —— 翻页时不再阻塞/闪动
                 />
               </Document>
             </div>
@@ -407,7 +397,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: 500,
+            minHeight: '300px',
             position: "relative",
           }
         }}

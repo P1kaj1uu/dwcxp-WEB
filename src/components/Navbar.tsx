@@ -221,11 +221,7 @@ const Navbar: React.FC<{ onCollapseChange?: (collapsed: boolean) => void }> = ({
 
   const menuItems = [
     { key: '/home', label: '数据宣传屏' },
-    { key: '/page1', label: '子页面1' },
-    { key: '/page2', label: '子页面2' },
-    { key: '/page3', label: '子页面3' },
-    { key: '/page4', label: '子页面4' },
-    { key: '/party-basic', label: '子页面1管理' },
+    { key: '/party-basic', label: '基本情况管理' },
     { key: '/party-evaluation', label: '评议管理' },
     { key: '/party-branch-evaluation', label: '党小组评议管理' },
     { key: '/party-branch', label: '党支部管理' },

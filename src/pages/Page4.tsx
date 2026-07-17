@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { bgImage, hbgIconImage } from "@/utils/images";
+import { hbgIconImage } from "@/utils/images";
 import { getMediaListApi, getShowMediaListApi } from '@/api/media';
 import MediaCarousel, { type MediaItem } from '@/components/MediaCarousel';
 
@@ -39,7 +39,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
       alt={text}
       style={{
         width: 'auto',
-        height: 50,
+        height: '50px',
         objectFit: 'contain',
       }}
     />
@@ -49,7 +49,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
         top: '60%',
         left: '55%',
         transform: 'translate(-50%, -50%)',
-        fontSize: 20,
+        fontSize: '26px',
         fontWeight: 'bold',
         color: '#fbbf24',
         textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
@@ -158,17 +158,8 @@ const Page4: React.FC = () => {
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
         width: '100%',
         height: '100%',
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
         overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -177,9 +168,9 @@ const Page4: React.FC = () => {
       }}
     >
       <div
-        className="flex gap-3 w-[720px] h-[430px] rounded-lg items-end p-[20px]"
+        className="flex gap-3 h-[430px] items-end p-[12px]"
         style={{
-          background: 'linear-gradient(to right, #fbe5d3, #fefceb, #fef1de, #f3d4c7)',
+          background: "#f7eaca",
         }}
       >
         {/* 组织生活区域 */}
