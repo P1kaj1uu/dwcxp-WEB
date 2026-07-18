@@ -276,6 +276,11 @@ const Page2: React.FC = () => {
     },
   });
 
+  // 左侧图片左右循环轮播：每页最多 6 张，每 10 秒切换一次
+  const [honorPageIndex, setHonorPageIndex] = useState(0);
+  // 轮播方向（"left" 从右滑入、"right" 从左滑入，左右交替形成摆动效果）
+  const [honorDirection, setHonorDirection] = useState<"left" | "right">("left");
+
   // 获取当前年份和当前季度
   const getCurrentYearAndQuarter = () => {
     const now = new Date();
@@ -308,7 +313,7 @@ const Page2: React.FC = () => {
 
       const queryEvaluationParams = {
         pageNum: 1,
-        pageSize: 6,
+        pageSize: 10000, // 一次拉 24 条，便于左侧光荣榜每页 6 张做轮播
         year: year,
         // quarter: quarter,
         ...params,
@@ -377,8 +382,41 @@ const Page2: React.FC = () => {
     [currentQuarter],
   );
 
-  // 光荣榜数据：最多 6 个，从 dataSource 取
-  const honorBoard = useMemo(() => dataSource.slice(0, 6), [dataSource]);
+  // 光荣榜数据：所有图片按 6 张/页左右循环轮播
+  const HONOR_PAGE_SIZE = 6;
+  const honorTotalPages = Math.max(1, Math.ceil(dataSource.length / HONOR_PAGE_SIZE));
+  const honorBoard = useMemo(() => {
+    // 只有 1 页时不轮播，直接全部显示
+    if (honorTotalPages <= 1) return dataSource;
+    // 否则从当前窗口取最多 6 张
+    const start = honorPageIndex * HONOR_PAGE_SIZE;
+    return dataSource.slice(start, start + HONOR_PAGE_SIZE);
+  }, [dataSource, honorPageIndex, honorTotalPages]);
+
+  // 10 秒切换一次光荣榜窗口（左右方向交替）
+  useEffect(() => {
+    if (honorTotalPages <= 1) return; // 只有一页无需轮播
+    const timer = setInterval(() => {
+      setHonorDirection((prev) => (prev === "left" ? "right" : "left"));
+      setHonorPageIndex((p) => (p + 1) % honorTotalPages);
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [honorTotalPages]);
+
+  // 党小组表格上下循环滚动：把原始数据复制一份拼接，用 CSS 动画 -50% 位移做无缝循环
+  const scrollRows = useMemo(() => {
+    if (partyBranchTableData.length === 0) return [];
+    // 复制一份接在末尾，CSS 关键帧从 0 滚到 -50% 时刚好对接回原列表，无限循环
+    return [...partyBranchTableData, ...partyBranchTableData];
+  }, [partyBranchTableData]);
+  // 滚动一圈的总时长 = 行数 × 每行秒数（最少 20s，最多 60s，保证视觉舒适）
+  const scrollDuration = useMemo(() => {
+    const n = partyBranchTableData.length;
+    if (n <= 1) return 0;
+    // 每行约 3 秒，总时长控制在 [20, 60] 秒之间
+    const total = Math.min(60, Math.max(20, n * 3));
+    return total;
+  }, [partyBranchTableData.length]);
 
   // 为列添加表头样式
   const styledEvaluationColumns = evaluationColumns.map(col => ({
@@ -504,10 +542,14 @@ const Page2: React.FC = () => {
           >
             {/* 左侧光荣榜区 */}
             <div
+              key={`honor-${honorPageIndex}-${honorDirection}`}
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
                 gap: '0.5rem',
+                animation: honorTotalPages > 1
+                  ? `honorPageChange-${honorDirection} 0.6s ease`
+                  : undefined,
               }}
             >
               {honorBoard.map((item) => (
@@ -611,25 +653,112 @@ const Page2: React.FC = () => {
                 />
               </div>
 
-              {/* 党小组考核结果 */}
-              <div>
+              {/* 党小组考核结果：上下循环滚动，表头固定，自适应撑满剩余空间 */}
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ fontWeight: "bold", marginBottom: '0.25rem', fontSize: '1rem', color: 'red', textAlign: 'center' }}>
                   党小组考核结果
                 </div>
-                <Table
-                  columns={styledPartyBranchColumns}
-                  dataSource={partyBranchTableData}
-                  loading={loading}
-                  bordered
-                  pagination={false}
-                  size="small"
-                  rowKey="key"
-                  className="red-header-table"
+                <div
+                  className="party-branch-scroll"
                   style={{
                     width: "100%",
-                    tableLayout: "fixed",
+                    flex: 1, // 撑满父容器剩余空间，不留白
+                    minHeight: 0,
+                    overflow: "hidden",
+                    border: '1px solid #a73300',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
-                />
+                >
+                  {/* 固定表头（不参与滚动） */}
+                  <table
+                    className="red-header-table"
+                    style={{
+                      width: '100%',
+                      tableLayout: 'fixed',
+                      borderCollapse: 'collapse',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <colgroup>
+                      {styledPartyBranchColumns.map((c: any) => (
+                        <col key={c.key} style={{ width: c.width || 'auto' }} />
+                      ))}
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        {styledPartyBranchColumns.map((c: any) => (
+                          <th
+                            key={c.key}
+                            style={{
+                              background: '#a73300',
+                              color: '#ffffff',
+                              fontWeight: 'bold',
+                              textAlign: 'center',
+                              fontSize: '0.875rem',
+                              padding: '0.375rem 0.5rem',
+                              border: '1px solid #d9d9d9',
+                            }}
+                          >
+                            {c.title}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                  </table>
+                  {/* tbody 单独滚动：复制一份数据拼接，用 -50% 位移做无缝循环 */}
+                  <div
+                    style={{
+                      flex: 1, // tbody 撑满表头以外的剩余高度
+                      minHeight: 0,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      className="party-branch-scroll-inner"
+                      style={{
+                        animationDuration: `${scrollDuration}s`,
+                      }}
+                    >
+                      <table
+                        style={{
+                          width: '100%',
+                          tableLayout: 'fixed',
+                          borderCollapse: 'collapse',
+                        }}
+                      >
+                        <colgroup>
+                          {styledPartyBranchColumns.map((c: any) => (
+                            <col key={c.key} style={{ width: c.width || 'auto' }} />
+                          ))}
+                        </colgroup>
+                        <tbody>
+                          {scrollRows.map((row: any, idx: number) => (
+                            <tr key={`${row.key}_${idx}`}>
+                              {styledPartyBranchColumns.map((c: any) => (
+                                <td
+                                  key={c.key}
+                                  style={{
+                                    textAlign: 'center',
+                                    fontSize: '0.8125rem',
+                                    padding: '0.375rem 0.5rem',
+                                    border: '1px solid #d9d9d9',
+                                    color: '#333',
+                                  }}
+                                >
+                                  {c.render
+                                    ? c.render(row[c.dataIndex], row, idx)
+                                    : row[c.dataIndex] ?? '-'}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -671,6 +800,27 @@ const Page2: React.FC = () => {
         /* 表格内容文字也跟随 rem */
         .red-header-table .ant-table-tbody > tr > td {
           font-size: 0.8125rem !important;
+        }
+
+        /* 左侧光荣榜左右循环轮播动画（key 变化时触发） */
+        @keyframes honorPageChange-left {
+          0%   { opacity: 0; transform: translateX(40%); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes honorPageChange-right {
+          0%   { opacity: 0; transform: translateX(-40%); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 党小组表格上下循环滚动：
+           数据复制了一份拼接在内层末尾，所以整体高度 = 2 × 原始高度；
+           关键帧从 0 滚到 -50% 即完成一整轮原始数据的展示，无缝衔接回到 0 */
+        .party-branch-scroll-inner {
+          animation: partyBranchScroll linear infinite;
+        }
+        @keyframes partyBranchScroll {
+          0%   { transform: translateY(0); }
+          100% { transform: translateY(-50%); }
         }
       `}</style>
     </>

@@ -32,9 +32,9 @@ const Home: React.FC = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', width: '66%', height: '100%', minHeight: 0 }}>
           <div style={{ display: 'flex', gap: "1rem", flex: 1, minHeight: 0 }}>
-            <div style={{ width: "50%", display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 0 }}>
-              {/* 中上 */}
-              <div className="flex align-items" style={{ justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ width: "50%", display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              {/* 中上：四强/四优 */}
+              <div className="flex align-items" style={{ justifyContent: 'space-between', gap: '0.75rem', marginBottom: '2rem' }}>
                 <div className="flex-1" style={{ textAlign: 'center', border: '1px solid #b5b6b5' }}>
                   <div style={{
                     backgroundColor: '#da2129', color: 'rgb(251, 191, 36)', fontSize: '1.375rem', fontWeight: 'bold', letterSpacing: '0.125rem', textShadow: 'rgba(0, 0, 0, 0.3) 1px 1px 2px', height: '2.75rem',
@@ -66,8 +66,8 @@ const Home: React.FC = () => {
                 </div>
               </div>
 
-              {/* 中下 */}
-              <div style={{ minHeight: 0 }}>
+              {/* 中下：考核评比，填满剩余空间不留白 */}
+              <div style={{ flex: 1, minHeight: 0 }}>
                 <Page2 />
               </div>
             </div>
