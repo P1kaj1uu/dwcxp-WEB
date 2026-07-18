@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 interface ScaledContainerProps {
   children: React.ReactNode;
+  /** 保留兼容参数；不再用于缩放计算。 */
   designWidth?: number;
+  /** 保留兼容参数；不再用于缩放计算。 */
   designHeight?: number;
+  /** 背景色，默认白色。 */
   backgroundColor?: string;
 }
 
 /**
- * 将子内容按设计稿尺寸（比如 1920×1080）等比缩放到视口中，
- * 居中显示，使整个仪表盘在任何分辨率下都“无滚动且按比例”。
+ * 全屏布局壳（不再做 CSS transform: scale）。
+ *
+ * 子组件内部的字体、间距、容器尺寸都已改为 rem / vw / vh 自适应，
+ * 通过全局 `html { font-size: clamp(12px, calc(100vw / 1920 * 16), 22px) }`
+ * 跟随视口缩放，因此这里只需要提供一个铺满视口的容器。
  */
 const ScaledContainer: React.FC<ScaledContainerProps> = ({
   children,
@@ -17,25 +23,9 @@ const ScaledContainer: React.FC<ScaledContainerProps> = ({
   designHeight = 1080,
   backgroundColor = "#fff",
 }) => {
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const computeScale = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      // 留一点 padding，避免贴到屏幕边缘
-      const padding = 0;
-      const s = Math.min(
-        (vw - padding * 2) / designWidth,
-        (vh - padding * 2) / designHeight,
-      );
-      setScale(s > 0 ? s : 1);
-    };
-
-    computeScale();
-    window.addEventListener("resize", computeScale);
-    return () => window.removeEventListener("resize", computeScale);
-  }, [designWidth, designHeight]);
+  // designWidth / designHeight 保留以保持调用方接口不变，但不参与渲染计算。
+  void designWidth;
+  void designHeight;
 
   return (
     <div
@@ -44,24 +34,10 @@ const ScaledContainer: React.FC<ScaledContainerProps> = ({
         height: "100vh",
         overflow: "hidden",
         backgroundColor,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        boxSizing: "border-box",
       }}
     >
-      <div
-        style={{
-          width: designWidth,
-          height: designHeight,
-          transform: `scale(${scale})`,
-          transformOrigin: "center center",
-          background: "#fff",
-          boxShadow: "0 0 60px rgba(0,0,0,0.35)",
-          flexShrink: 0,
-        }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   );
 };

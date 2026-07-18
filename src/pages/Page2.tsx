@@ -60,7 +60,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "达标岗") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={dbgImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={dbgImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -68,7 +68,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "达标区") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={dbqImage} alt={value} style={{ width: 11, height: 11 }} />
+        <img src={dbqImage} alt={value} style={{ width: '0.6875rem', height: '0.6875rem' }} />
         {value}
       </div>
     );
@@ -76,7 +76,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "红旗区") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={hqqImage} alt={value} style={{ width: 11, height: 11 }} />
+        <img src={hqqImage} alt={value} style={{ width: '0.6875rem', height: '0.6875rem' }} />
         {value}
       </div>
     );
@@ -84,7 +84,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "警示岗") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={jsgImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={jsgImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -92,7 +92,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "警示区") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={jsqImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={jsqImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -100,7 +100,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "先锋岗") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={xfgImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={xfgImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -108,7 +108,7 @@ const getBadgeStyle = (value: string) => {
   if (value === "四优") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={siYouImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={siYouImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
       </div>
     );
   }
@@ -121,7 +121,7 @@ const getPartyBranchLevelStyle = (value: string) => {
   if (value === "红旗党小组") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={hqqImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={hqqImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -129,7 +129,7 @@ const getPartyBranchLevelStyle = (value: string) => {
   if (value === "警示党小组") {
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src={jsqImage} alt={value} style={{ width: 15, height: 15 }} />
+        <img src={jsqImage} alt={value} style={{ width: '0.9375rem', height: '0.9375rem' }} />
         {value}
       </div>
     );
@@ -189,7 +189,7 @@ const generateColumns = (quarter: string): ColumnsType<TableRowData> => {
       title: "姓名",
       dataIndex: "name",
       key: "name",
-      width: 100,
+      width: '6.25rem',
       fixed: "left",
     },
   ];
@@ -201,21 +201,21 @@ const generateColumns = (quarter: string): ColumnsType<TableRowData> => {
         title: "岗",
         dataIndex: "post",
         key: "post",
-        width: 100,
+        width: '6.25rem',
         render: (value: string) => getBadgeStyle(value),
       },
       {
         title: "区",
         dataIndex: "area",
         key: "area",
-        width: 100,
+        width: '6.25rem',
         render: (value: string) => getBadgeStyle(value),
       },
       {
         title: "四优",
         dataIndex: "excellent",
         key: "excellent",
-        width: 100,
+        width: '6.25rem',
         render: (value: string) =>
           value && value !== "否" && value !== "x" && value !== "X"
             ? getBadgeStyle("四优")
@@ -391,41 +391,41 @@ const Page2: React.FC = () => {
       title: <span style={{ color: '#ffffff' }}>党小组名称</span>,
       dataIndex: "partyBranch",
       key: "partyBranch",
-      width: 96,
+      width: '6rem',
     },
     {
       title: <span style={{ color: '#ffffff' }}>一季度</span>,
       dataIndex: "one",
       key: "one",
-      width: 50,
+      width: '3.125rem',
       render: (value: string) => getPartyBranchLevelStyle(value),
     },
     {
       title: <span style={{ color: '#ffffff' }}>二季度</span>,
       dataIndex: "two",
       key: "two",
-      width: 50,
+      width: '3.125rem',
       render: (value: string) => getPartyBranchLevelStyle(value),
     },
     {
       title: <span style={{ color: '#ffffff' }}>三季度</span>,
       dataIndex: "three",
       key: "three",
-      width: 50,
+      width: '3.125rem',
       render: (value: string) => getPartyBranchLevelStyle(value),
     },
     {
       title: <span style={{ color: '#ffffff' }}>四季度</span>,
       dataIndex: "four",
       key: "four",
-      width: 50,
+      width: '3.125rem',
       render: (value: string) => getPartyBranchLevelStyle(value),
     },
     {
       title: <span style={{ color: '#ffffff' }}>上年度</span>,
       dataIndex: "years",
       key: "years",
-      width: 50,
+      width: '3.125rem',
       render: (value: string) => getPartyBranchLevelStyle(value),
     },
   ];
@@ -459,7 +459,7 @@ const Page2: React.FC = () => {
             alt="考核评比"
             style={{
               width: "100%",
-              height: 44,
+              height: '2.75rem',
               objectFit: "contain",
             }}
           />
@@ -469,12 +469,12 @@ const Page2: React.FC = () => {
               top: "50%",
               left: "52%",
               transform: "translate(-50%, -50%)",
-              fontSize: 22,
+              fontSize: '1.375rem',
               fontWeight: "bold",
               color: "#fbbf24",
-              textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+              textShadow: "0.0625rem 0.0625rem 0.125rem rgba(0,0,0,0.3)",
               whiteSpace: "nowrap",
-              letterSpacing: 2,
+              letterSpacing: '0.125rem',
             }}
           >
             考核评比
@@ -488,7 +488,7 @@ const Page2: React.FC = () => {
             flex: 1,
             minHeight: 0,
             background: "#fff",
-            padding: 12,
+            padding: '0.75rem',
             boxSizing: "border-box",
             overflow: "hidden",
           }}
@@ -497,8 +497,8 @@ const Page2: React.FC = () => {
             style={{
               display: "flex",
               flexDirection: "row",
-              gap: "20px",
-              borderRadius: 12,
+              gap: '1.25rem',
+              borderRadius: '0.75rem',
               alignItems: "flex-start",
             }}
           >
@@ -507,7 +507,7 @@ const Page2: React.FC = () => {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "8px",
+                gap: '0.5rem',
               }}
             >
               {honorBoard.map((item) => (
@@ -525,7 +525,7 @@ const Page2: React.FC = () => {
                     alt={item.name}
                     style={{
                       width: "100%",
-                      height: 80,
+                      height: '5rem',
                       objectFit: "cover",
                       objectPosition: "50% 25%",
                       display: "block",
@@ -536,17 +536,17 @@ const Page2: React.FC = () => {
                       background: "#a73300",
                       color: "#ffffff",
                       textAlign: "center",
-                      padding: "4px",
+                      padding: '0.25rem',
                       fontWeight: "bold",
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                     }}
                   >
                     {item.name}
                   </div>
                   <div
                     style={{
-                      padding: "4px",
-                      fontSize: 12,
+                      padding: '0.25rem',
+                      fontSize: '0.75rem',
                       lineHeight: 1.4,
                       color: "#333",
                       display: 'flex',
@@ -555,22 +555,22 @@ const Page2: React.FC = () => {
                     }}
                   >
                     {item.responsibilityPost && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: '0.25rem' }}>
                         <span style={{ display: 'flex',
                           justifyContent: 'center',
-                          alignItems: 'center', color: "red", width: '11px', height: '11px' }}>★</span>
+                          alignItems: 'center', color: "red", width: '0.6875rem', height: '0.6875rem' }}>★</span>
                         <span>{item.responsibilityPost}</span>
                       </div>
                     )}
                     {item.good && item.good !== "否" && item.good !== "x" && item.good !== "X" && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <img src={siYouImage} alt="四优" style={{ width: 11, height: 11 }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: '0.25rem' }}>
+                        <img src={siYouImage} alt="四优" style={{ width: '0.6875rem', height: '0.6875rem' }} />
                         <span>四优党员</span>
                       </div>
                     )}
                     {item.responsibilityArea && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <img src={hqqImage} alt="红旗区" style={{ width: 11, height: 11 }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: '0.25rem' }}>
+                        <img src={hqqImage} alt="红旗区" style={{ width: '0.6875rem', height: '0.6875rem' }} />
                         <span>{item.responsibilityArea}</span>
                       </div>
                     )}
@@ -586,12 +586,12 @@ const Page2: React.FC = () => {
                 minWidth: 0,
                 display: "flex",
                 flexDirection: "column",
-                gap: 8,
+                gap: '0.5rem',
               }}
             >
               {/* 本支部考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 4, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: '0.25rem', fontSize: '1rem', color: 'red', textAlign: 'center' }}>
                   本支部考核结果
                 </div>
                 <Table
@@ -613,7 +613,7 @@ const Page2: React.FC = () => {
 
               {/* 党小组考核结果 */}
               <div>
-                <div style={{ fontWeight: "bold", marginBottom: 4, fontSize: 16, color: 'red', textAlign: 'center' }}>
+                <div style={{ fontWeight: "bold", marginBottom: '0.25rem', fontSize: '1rem', color: 'red', textAlign: 'center' }}>
                   党小组考核结果
                 </div>
                 <Table
@@ -653,6 +653,8 @@ const Page2: React.FC = () => {
           color: #ffffff !important;
           font-weight: bold;
           text-align: center;
+          /* 表头文字也跟随 rem 缩放 */
+          font-size: 0.875rem !important;
         }
         .red-header-table .ant-table-thead > tr > th .ant-table-column-title {
           color: #ffffff !important;
@@ -665,6 +667,10 @@ const Page2: React.FC = () => {
         /* 表头悬停效果保持不变 */
         .red-header-table .ant-table-thead > tr > th:hover {
           background: #a73300 !important;
+        }
+        /* 表格内容文字也跟随 rem */
+        .red-header-table .ant-table-tbody > tr > td {
+          font-size: 0.8125rem !important;
         }
       `}</style>
     </>

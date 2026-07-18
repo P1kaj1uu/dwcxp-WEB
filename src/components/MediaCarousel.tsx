@@ -148,12 +148,12 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: 8,
+            borderRadius: '0.5rem',
             zIndex: 5,
           }}
         >
           <Spin size="large" />
-          <div style={{ marginTop: 12, color: '#666', fontSize: 12 }}>
+          <div style={{ marginTop: '0.75rem', color: '#666', fontSize: '0.75rem' }}>
             加载中...
           </div>
         </div>
@@ -177,7 +177,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           }}
         >
           <div>无法加载媒体内容</div>
-          <div style={{ fontSize: 12, marginTop: 8 }}>
+          <div style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
             {currentItem?.fileName}
           </div>
         </div>
@@ -225,14 +225,14 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           <div
             style={{
               position: 'absolute',
-              left: 8,
+              left: '0.5rem',
               top: '50%',
               transform: 'translateY(-50%)',
               cursor: 'pointer',
               background: 'rgba(0,0,0,0.5)',
               borderRadius: '50%',
-              width: 32,
-              height: 32,
+              width: '2rem',
+              height: '2rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -240,19 +240,19 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
             }}
             onClick={() => changeMedia('prev')}
           >
-            <LeftOutlined style={{ color: '#fff', fontSize: 16 }} />
+            <LeftOutlined style={{ color: '#fff', fontSize: '1rem' }} />
           </div>
           <div
             style={{
               position: 'absolute',
-              right: 8,
+              right: '0.5rem',
               top: '50%',
               transform: 'translateY(-50%)',
               cursor: 'pointer',
               background: 'rgba(0,0,0,0.5)',
               borderRadius: '50%',
-              width: 32,
-              height: 32,
+              width: '2rem',
+              height: '2rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -260,7 +260,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
             }}
             onClick={() => changeMedia('next')}
           >
-            <RightOutlined style={{ color: '#fff', fontSize: 16 }} />
+            <RightOutlined style={{ color: '#fff', fontSize: '1rem' }} />
           </div>
         </>
       )}

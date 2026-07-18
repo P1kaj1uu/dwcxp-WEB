@@ -167,18 +167,19 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
           <div
             onClick={handleTitleClick}
             style={{
-              padding: "8px 0",
+              padding: "0.5rem 0",
               fontWeight: "bold",
+              fontSize: '0.875rem',
               flexShrink: 0,
               cursor: "pointer",
               background: "#ba2e35",
               color: "#facc14",
-              borderRadius: 6,
+              borderRadius: '0.375rem',
               position: "absolute",
-              top: "-15px",
+              top: '-0.9375rem',
               left: "50%",
               transform: "translateX(-50%)",
-              minWidth: "90px",
+              minWidth: '5.625rem',
               zIndex: 1000,
             }}
           >
@@ -208,12 +209,12 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: "rgba(255, 255, 255, 0.9)",
-                borderRadius: 8,
+                borderRadius: '0.5rem',
                 zIndex: 5,
               }}
             >
               <Spin size="large" />
-              <div style={{ marginTop: 12, color: "#666", fontSize: 12 }}>
+              <div style={{ marginTop: '0.75rem', color: "#666", fontSize: '0.75rem' }}>
                 加载 {title} 中...
               </div>
             </div>
@@ -233,9 +234,9 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 justifyContent: "center",
               }}
             >
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📄</div>
               <div>PDF 加载失败</div>
-              <div style={{ fontSize: 12, marginTop: 4, color: "#999" }}>
+              <div style={{ fontSize: '0.75rem', marginTop: '0.25rem', color: "#999" }}>
                 请检查文件或网络连接
               </div>
             </div>
@@ -281,11 +282,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 onClick={handlePrev}
                 style={{
                   position: "absolute",
-                  left: 8,
+                  left: '0.5rem',
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: 28,
-                  height: 28,
+                  width: '1.75rem',
+                  height: '1.75rem',
                   borderRadius: "50%",
                   background: "rgba(0,0,0,0.5)",
                   color: "#fff",
@@ -293,7 +294,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  fontSize: 14,
+                  fontSize: '0.875rem',
                   zIndex: 10,
                   transition: "background 0.2s",
                 }}
@@ -310,11 +311,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 onClick={handleNext}
                 style={{
                   position: "absolute",
-                  right: 8,
+                  right: '0.5rem',
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: 28,
-                  height: 28,
+                  width: '1.75rem',
+                  height: '1.75rem',
                   borderRadius: "50%",
                   background: "rgba(0,0,0,0.5)",
                   color: "#fff",
@@ -322,7 +323,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  fontSize: 14,
+                  fontSize: '0.875rem',
                   zIndex: 10,
                   transition: "background 0.2s",
                 }}
@@ -338,11 +339,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 style={{
                   position: "absolute",
-                  bottom: 8,
+                  bottom: '0.5rem',
                   left: "50%",
                   transform: "translateX(-50%)",
                   display: "flex",
-                  gap: 6,
+                  gap: '0.375rem',
                   zIndex: 10,
                 }}
               >
@@ -351,8 +352,8 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                     key={idx}
                     onClick={(e) => handleDotClick(e, idx)}
                     style={{
-                      width: 6,
-                      height: 6,
+                      width: '0.375rem',
+                      height: '0.375rem',
                       borderRadius: "50%",
                       background:
                         idx === currentIndex
@@ -367,13 +368,13 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 style={{
                   position: "absolute",
-                  bottom: 8,
-                  right: 8,
-                  fontSize: 10,
+                  bottom: '0.5rem',
+                  right: '0.5rem',
+                  fontSize: '0.625rem',
                   color: "rgba(255,255,255,0.7)",
                   background: "rgba(0,0,0,0.4)",
-                  padding: "2px 6px",
-                  borderRadius: 10,
+                  padding: '0.125rem 0.375rem',
+                  borderRadius: '0.625rem',
                   zIndex: 10,
                 }}
               >
@@ -418,7 +419,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
             }}
           >
             <Spin size="large" />
-            <div style={{ marginTop: 12, color: "#666" }}>加载文档中...</div>
+            <div style={{ marginTop: '0.75rem', color: "#666" }}>加载文档中...</div>
           </div>
         )}
 
@@ -451,11 +452,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 onClick={handleModalPrev}
                 style={{
                   position: "absolute",
-                  left: -40,
+                  left: '-2.5rem',
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: 36,
-                  height: 36,
+                  width: '2.25rem',
+                  height: '2.25rem',
                   borderRadius: "50%",
                   background: "rgba(0,0,0,0.5)",
                   color: "#fff",
@@ -463,7 +464,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  fontSize: 16,
+                  fontSize: '1rem',
                   zIndex: 10,
                   transition: "background 0.2s",
                 }}
@@ -480,11 +481,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                 onClick={handleModalNext}
                 style={{
                   position: "absolute",
-                  right: -40,
+                  right: '-2.5rem',
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: 36,
-                  height: 36,
+                  width: '2.25rem',
+                  height: '2.25rem',
                   borderRadius: "50%",
                   background: "rgba(0,0,0,0.5)",
                   color: "#fff",
@@ -492,7 +493,7 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  fontSize: 16,
+                  fontSize: '1rem',
                   zIndex: 10,
                   transition: "background 0.2s",
                 }}
@@ -508,11 +509,11 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 style={{
                   position: "absolute",
-                  bottom: -30,
+                  bottom: '-1.875rem',
                   left: "50%",
                   transform: "translateX(-50%)",
                   display: "flex",
-                  gap: 8,
+                  gap: '0.5rem',
                   zIndex: 10,
                 }}
               >
@@ -524,8 +525,8 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
                       setModalPageLoading(true);
                     }}
                     style={{
-                      width: 8,
-                      height: 8,
+                      width: '0.5rem',
+                      height: '0.5rem',
                       borderRadius: "50%",
                       background:
                         idx === modalCurrentPage
@@ -540,13 +541,13 @@ const PDFCarousel: React.FC<PDFCarouselProps> = ({
               <div
                 style={{
                   position: "absolute",
-                  bottom: -30,
+                  bottom: '-1.875rem',
                   right: 0,
-                  fontSize: 12,
+                  fontSize: '0.75rem',
                   color: "#666",
                   background: "rgba(0,0,0,0.05)",
-                  padding: "2px 8px",
-                  borderRadius: 12,
+                  padding: '0.125rem 0.5rem',
+                  borderRadius: '0.75rem',
                 }}
               >
                 {modalCurrentPage + 1} / {numPages}

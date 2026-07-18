@@ -30,7 +30,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: 8,
+      marginBottom: '0.5rem',
       flexShrink: 0,
     }}
   >
@@ -39,7 +39,7 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
       alt={text}
       style={{
         width: 'auto',
-        height: 40,
+        height: '2.5rem',
         objectFit: 'contain',
       }}
     />
@@ -49,12 +49,12 @@ const SectionTitle: React.FC<{ text: string }> = ({ text }) => (
         top: '60%',
         left: '55%',
         transform: 'translate(-50%, -50%)',
-        fontSize: 20,
+        fontSize: '1.25rem',
         fontWeight: 'bold',
         color: '#fbbf24',
-        textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+        textShadow: '0.0625rem 0.0625rem 0.125rem rgba(0,0,0,0.3)',
         whiteSpace: 'nowrap',
-        letterSpacing: 2,
+        letterSpacing: '0.125rem',
       }}
     >
       {text}
@@ -171,11 +171,11 @@ const Page4: React.FC = () => {
       <div
         style={{
           display: "flex",
-          gap: 12,
+          gap: '0.75rem',
           width: "100%",
           height: "100%",
           alignItems: "stretch",
-          padding: 12,
+          padding: '0.75rem',
           boxSizing: "border-box",
           minHeight: 0,
         }}

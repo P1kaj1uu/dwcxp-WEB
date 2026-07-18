@@ -27,7 +27,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          marginBottom: 8,
+          marginBottom: '0.5rem',
           flexShrink: 0,
         }}
       >
@@ -36,7 +36,7 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
           alt={title}
           style={{
             width: "auto",
-            height: 40,
+            height: '2.5rem',
             objectFit: "fill",
           }}
         />
@@ -46,12 +46,12 @@ const PdfCard: React.FC<PdfCardProps> = ({ title, pdfUrl }) => {
             top: "60%",
             left: "60%",
             transform: "translate(-50%, -50%)",
-            fontSize: 20,
+            fontSize: '1.25rem',
             fontWeight: "bold",
             color: "#fbbf24",
-            textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+            textShadow: "0.0625rem 0.0625rem 0.125rem rgba(0,0,0,0.3)",
             whiteSpace: "nowrap",
-            letterSpacing: 2,
+            letterSpacing: '0.125rem',
           }}
         >
           {title}
@@ -129,7 +129,7 @@ const Page3: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         background: "#f7eaca",
-        padding: 12,
+        padding: '0.75rem',
         boxSizing: "border-box",
         minHeight: 0,
       }}
@@ -142,7 +142,7 @@ const Page3: React.FC = () => {
           flexDirection: "row",
           justifyContent: "space-around",
           alignItems: "stretch",
-          gap: 12,
+          gap: '0.75rem',
           minHeight: 0, // 让子项可以正确伸缩
           background: "#f7eaca",
           boxSizing: "border-box",

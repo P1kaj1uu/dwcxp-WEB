@@ -175,13 +175,13 @@ const Page1: React.FC = () => {
       <>
         {/* @ts-ignore */}
         {departmentOptions.map((dept, idx) => (
-          <div key={idx} style={{ marginBottom: 24 }}>
+          <div key={idx} style={{ marginBottom: '1.5rem' }}>
             {/* 部门标题骨架 */}
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{ textAlign: "center", marginBottom: '1rem' }}>
               <Skeleton.Input
                 active
                 size="small"
-                style={{ width: 120, height: 20 }}
+                style={{ width: '7.5rem', height: '1.25rem' }}
               />
             </div>
 
@@ -190,16 +190,16 @@ const Page1: React.FC = () => {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: 12,
+                gap: '0.75rem',
                 justifyContent: "center",
-                marginBottom: 12,
+                marginBottom: '0.75rem',
               }}
             >
               {[1, 2, 3, 4, 5].map((item) => (
                 <div
                   key={item}
                   style={{
-                    width: 72,
+                    width: '4.5rem',
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -207,18 +207,18 @@ const Page1: React.FC = () => {
                 >
                   <Skeleton.Avatar
                     active
-                    size={38}
-                    style={{ marginBottom: 8 }}
+                    size="default"
+                    style={{ width: '2.375rem', height: '2.375rem', marginBottom: '0.5rem' }}
                   />
                   <Skeleton.Input
                     active
                     size="small"
-                    style={{ width: 50, height: 12, marginBottom: 4 }}
+                    style={{ width: '3.125rem', height: '0.75rem', marginBottom: '0.25rem' }}
                   />
                   <Skeleton.Input
                     active
                     size="small"
-                    style={{ width: 40, height: 12 }}
+                    style={{ width: '2.5rem', height: '0.75rem' }}
                   />
                 </div>
               ))}
@@ -229,7 +229,7 @@ const Page1: React.FC = () => {
               <Skeleton.Button
                 active
                 size="default"
-                style={{ width: "75%", height: 60 }}
+                style={{ width: "75%", height: '3.75rem' }}
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ const Page1: React.FC = () => {
           alt="基本情况"
           style={{
             width: "100%",
-            height: 44,
+            height: '2.75rem',
             objectFit: "contain",
           }}
         />
@@ -284,12 +284,12 @@ const Page1: React.FC = () => {
             top: "50%",
             left: "52%",
             transform: "translate(-50%, -50%)",
-            fontSize: 22,
+            fontSize: '1.375rem',
             fontWeight: "bold",
             color: "#fbbf24",
-            textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+            textShadow: "0.0625rem 0.0625rem 0.125rem rgba(0,0,0,0.3)",
             whiteSpace: "nowrap",
-            letterSpacing: 2,
+            letterSpacing: '0.125rem',
           }}
         >
           基本情况
@@ -306,8 +306,8 @@ const Page1: React.FC = () => {
           width: "100%",
           minWidth: 0,
           background: "#ffffe7",
-          padding: 12,
-          gap: 8,
+          padding: '0.75rem',
+          gap: '0.5rem',
           boxSizing: "border-box",
         }}
       >
@@ -316,7 +316,7 @@ const Page1: React.FC = () => {
 
         {/* 真实数据展示 */}
         {!showSkeleton && !loading && groupedData.length === 0 && (
-          <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+          <div style={{ textAlign: "center", padding: '2.5rem', color: "#999" }}>
             暂无数据
           </div>
         )}
@@ -333,11 +333,11 @@ const Page1: React.FC = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 18,
+                    fontSize: '1.125rem',
                     fontWeight: 700,
                     color: "#dc2626",
                     textAlign: "center",
-                    marginBottom: 4,
+                    marginBottom: '1.5rem',
                     flexShrink: 0,
                   }}
                 >
@@ -346,9 +346,9 @@ const Page1: React.FC = () => {
                       src={item.image}
                       alt={item.title}
                       style={{
-                        width: 20,
-                        height: 20,
-                        marginRight: 6,
+                        width: '1.25rem',
+                        height: '1.25rem',
+                        marginRight: '0.375rem',
                       }}
                     />
                   )}
@@ -359,7 +359,7 @@ const Page1: React.FC = () => {
                     display: "flex",
                     flexWrap: "wrap",
                     justifyContent: "center",
-                    gap: 4,
+                    gap: '0.25rem',
                     flexShrink: 0,
                   }}
                 >
@@ -380,7 +380,7 @@ const Page1: React.FC = () => {
                       <div
                         style={{
                           width: "100%",
-                          height: 90,
+                          height: '5.625rem',
                           overflow: "hidden", // 防止图片溢出
                           flexShrink: 0, // 防止被压缩
                         }}
@@ -399,8 +399,8 @@ const Page1: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          marginBottom: 2,
-                          fontSize: 12,
+                          marginBottom: '0.125rem',
+                          fontSize: '0.75rem',
                           fontWeight: 700,
                           textAlign: "center",
                           lineHeight: 1.2,
@@ -428,7 +428,7 @@ const Page1: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: 12,
+                          fontSize: '0.75rem',
                           fontWeight: 700,
                           textAlign: "center",
                           lineHeight: 1.2,
@@ -445,7 +445,7 @@ const Page1: React.FC = () => {
                           <span
                             style={{
                               position: "absolute",
-                              left: "-4px", // 向左延伸
+                              left: "-0.25rem", // 向左延伸
                               right: "0px", // 向右延伸
                               bottom: 0,
                               height: "1px",
@@ -464,14 +464,14 @@ const Page1: React.FC = () => {
                 如果是团支部委员会，显示：现有团员xx名，预备团委xx名，平均年龄xx岁；现有青工（35岁及以下）xx名。 */}
                 <div
                   style={{
-                    padding: "0px 12px",
-                    margin: "4px 24px 0px",
+                    padding: "0px 0.75rem",
+                    margin: "1.25rem 1.5rem 0px",
                     fontWeight: 700,
                   }}
                 >
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: '0.75rem',
                       lineHeight: 1.4,
                       color: "#374151",
                       textAlign: 'center'
