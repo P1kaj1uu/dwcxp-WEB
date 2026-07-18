@@ -642,7 +642,6 @@ const Page2: React.FC = () => {
                   loading={loading}
                   bordered
                   pagination={false}
-                  scroll={{ x: "max-content" }}
                   size="small"
                   rowKey="id"
                   className="red-header-table"
