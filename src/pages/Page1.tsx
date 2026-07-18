@@ -35,6 +35,11 @@ const Page1: React.FC = () => {
   // 骨架屏显示状态
   const [showSkeleton, setShowSkeleton] = useState(true);
 
+  // 每个部门当前的轮播页索引（0, 1, 2...），用于左右循环轮播
+  const [pageIndexes, setPageIndexes] = useState<Record<string, number>>({});
+  // 控制左右切换方向：1 表示向右（索引递增），-1 表示向左（索引递减）
+  const [slideDirection, setSlideDirection] = useState<Record<string, 1 | -1>>({});
+
   const fetchEvaluationResults = async () => {
     setLoading(true);
     setShowSkeleton(true);
@@ -118,6 +123,15 @@ const Page1: React.FC = () => {
       const groups = groupByType(allMembers);
       console.log("分组后的数据:", groups);
       setGroupedData(groups);
+      // 初始化每个部门的轮播页索引为 0，方向为向右
+      const initialIndexes: Record<string, number> = {};
+      const initialDirections: Record<string, 1 | -1> = {};
+      groups.forEach((g) => {
+        initialIndexes[g.title] = 0;
+        initialDirections[g.title] = 1;
+      });
+      setPageIndexes(initialIndexes);
+      setSlideDirection(initialDirections);
     } catch (error) {
       console.error("获取数据失败:", error);
     } finally {
@@ -238,10 +252,144 @@ const Page1: React.FC = () => {
     );
   };
 
+  // 渲染单个成员卡片
+  const renderMemberCard = (member: Member, idx: number) => (
+    <div
+      key={member.id || idx}
+      style={{
+        flexShrink: 0,
+        width: '6rem',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        border: "1px solid black",
+        paddingBottom: 0,
+        overflow: "hidden",
+      }}
+    >
+      {/* 图片容器 */}
+      <div
+        style={{
+          width: "100%",
+          height: '5.625rem',
+          overflow: "hidden", // 防止图片溢出
+          flexShrink: 0, // 防止被压缩
+        }}
+      >
+        <img
+          src={getPhotoUrl(member.photo)}
+          alt={member.name}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover", // 关键：cover 会覆盖整个区域，保持比例
+            objectPosition: "50% 25%", // 可选：调整图片在容器中的位置
+            display: "block", // 移除图片底部间隙
+          }}
+        />
+      </div>
+      <div
+        style={{
+          marginBottom: '0.125rem',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          textAlign: "center",
+          lineHeight: 1.2,
+        }}
+      >
+        姓名：
+        <span
+          style={{
+            position: "relative",
+            display: "inline-block",
+          }}
+        >
+          {member.name}
+          <span
+            style={{
+              position: "absolute",
+              left: "0px", // 向左延伸
+              right: "0px", // 向右延伸
+              bottom: 0,
+              height: "1px",
+              backgroundColor: "currentColor",
+            }}
+          />
+        </span>
+      </div>
+      <div
+        style={{
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          textAlign: "center",
+          lineHeight: 1.2,
+        }}
+      >
+        职务：
+        <span
+          style={{
+            position: "relative",
+            display: "inline-block",
+          }}
+        >
+          {member.position}
+          <span
+            style={{
+              position: "absolute",
+              left: "-0.25rem", // 向左延伸
+              right: "0px", // 向右延伸
+              bottom: 0,
+              height: "1px",
+              backgroundColor: "currentColor",
+            }}
+          />
+        </span>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     fetchEvaluationResults();
     fetchAllData();
   }, []);
+
+  // 每 10 秒切换一次轮播页，左右循环切换
+  useEffect(() => {
+    if (showSkeleton || groupedData.length === 0) return;
+
+    const timer = setInterval(() => {
+      setPageIndexes((prev) => {
+        const next: Record<string, number> = { ...prev };
+        setSlideDirection((prevDir) => {
+          const nextDir: Record<string, 1 | -1> = { ...prevDir };
+          groupedData.forEach((group) => {
+            const totalPages = Math.ceil(group.content.length / 5);
+            if (totalPages <= 1) {
+              next[group.title] = 0;
+              nextDir[group.title] = 1;
+              return;
+            }
+            const currentDir = prevDir[group.title] || 1;
+            const currentPage = prev[group.title] || 0;
+            let newPage = currentPage + currentDir;
+            // 左右循环：到达边界时反向
+            if (newPage >= totalPages) {
+              newPage = totalPages - 2;
+              nextDir[group.title] = -1;
+            } else if (newPage < 0) {
+              newPage = 1;
+              nextDir[group.title] = 1;
+            }
+            next[group.title] = newPage;
+          });
+          return nextDir;
+        });
+        return next;
+      });
+    }, 10000);
+
+    return () => clearInterval(timer);
+  }, [groupedData, showSkeleton]);
 
   return (
     <div
@@ -323,190 +471,136 @@ const Page1: React.FC = () => {
 
         {!showSkeleton && !loading && groupedData.length > 0 && (
           <>
-            {groupedData.map((item, index) => (
-              <div
-                key={index}
-                style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: '1.125rem',
-                    fontWeight: 700,
-                    color: "#dc2626",
-                    textAlign: "center",
-                    marginBottom: '1.5rem',
-                    flexShrink: 0,
-                  }}
-                >
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      style={{
-                        width: '1.25rem',
-                        height: '1.25rem',
-                        marginRight: '0.375rem',
-                      }}
-                    />
-                  )}
-                  {item.title}
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    gap: '0.25rem',
-                    flexShrink: 0,
-                  }}
-                >
-                  {item.content.map((member, idx) => (
-                    <div
-                      key={member.id || idx}
-                      style={{
-                        flexShrink: 0,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        border: "1px solid black",
-                        paddingBottom: 0,
-                        overflow: "hidden",
-                      }}
-                    >
-                      {/* 图片容器 */}
-                      <div
-                        style={{
-                          width: "100%",
-                          height: '5.625rem',
-                          overflow: "hidden", // 防止图片溢出
-                          flexShrink: 0, // 防止被压缩
-                        }}
-                      >
-                        <img
-                          src={getPhotoUrl(member.photo)}
-                          alt={member.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover", // 关键：cover 会覆盖整个区域，保持比例
-                            objectPosition: "50% 25%", // 可选：调整图片在容器中的位置
-                            display: "block", // 移除图片底部间隙
-                          }}
-                        />
-                      </div>
-                      <div
-                        style={{
-                          marginBottom: '0.125rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textAlign: "center",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        姓名：
-                        <span
-                          style={{
-                            position: "relative",
-                            display: "inline-block",
-                          }}
-                        >
-                          {member.name}
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "0px", // 向左延伸
-                              right: "0px", // 向右延伸
-                              bottom: 0,
-                              height: "1px",
-                              backgroundColor: "currentColor",
-                            }}
-                          />
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textAlign: "center",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        职务：
-                        <span
-                          style={{
-                            position: "relative",
-                            display: "inline-block",
-                          }}
-                        >
-                          {member.position}
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "-0.25rem", // 向左延伸
-                              right: "0px", // 向右延伸
-                              bottom: 0,
-                              height: "1px",
-                              backgroundColor: "currentColor",
-                            }}
-                          />
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {groupedData.map((item, index) => {
+              // 每次最多展示 5 个成员，按当前页索引切片
+              const totalPages = Math.max(1, Math.ceil(item.content.length / 5));
+              const currentPage = Math.min(
+                pageIndexes[item.title] || 0,
+                totalPages - 1,
+              );
+              const startIdx = currentPage * 5;
+              const pageMembers = item.content.slice(startIdx, startIdx + 5);
+              // 当前切换方向（用于决定滑入方向）
+              const direction = slideDirection[item.title] || 1;
 
-                {/* 统计信息卡片 - 白色背景 */}
-                {/* 如果是党支部委员会，显示：现有党员X名，其中预备党员X名，平均年龄X岁；现有发展党员X名，入党积极分子X名，递交入党申请书X名。
-                如果是车间分会委员会，显示：现有班组xx个，分会会员xx名。
-                如果是团支部委员会，显示：现有团员xx名，预备团委xx名，平均年龄xx岁；现有青工（35岁及以下）xx名。 */}
+              return (
                 <div
-                  style={{
-                    padding: "0px 0.75rem",
-                    margin: "1.25rem 1.5rem 0px",
-                    fontWeight: 700,
-                  }}
+                  key={index}
+                  style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
                 >
                   <div
                     style={{
-                      fontSize: '0.75rem',
-                      lineHeight: 1.4,
-                      color: "#374151",
-                      textAlign: 'center'
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: '1.125rem',
+                      fontWeight: 700,
+                      color: "#dc2626",
+                      textAlign: "center",
+                      marginBottom: '1.5rem',
+                      flexShrink: 0,
                     }}
                   >
-                    {(() => {
-                      const stats = basicInfoNums[0] || {};
-                      switch (item.title) {
-                        case "党支部委员会":
-                          return (
-                            <>
-                              现有党员{stats.partyNum1 || 0}名，其中预备党员
-                              {stats.partyNum2 || 0}名，平均年龄
-                              {stats.partyNum3 || 0}岁；
-                              <br />
-                              现有发展党员{stats.partyNum4 || 0}名，入党积极分子
-                              {stats.partyNum5 || 0}名，递交入党申请书
-                              {stats.partyNum6 || 0}名。
-                            </>
-                          );
-                        case "车间分会委员会":
-                          return `现有班组${stats.cheNum1 || 0}个，分会会员${stats.cheNum2 || 0}名。`;
-                        case "团支部委员会":
-                          return `现有团员${stats.tuanNum1 || 0}名，预备团委${stats.tuanNum2 || 0}名，平均年龄${stats.tuanNum3 || 0}岁；现有青工（35岁及以下）${stats.tuanNum4 || 0}名。`;
-                        default:
-                          return "";
-                      }
-                    })()}
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        style={{
+                          width: '1.25rem',
+                          height: '1.25rem',
+                          marginRight: '0.375rem',
+                        }}
+                      />
+                    )}
+                    {item.title}
+                  </div>
+
+                  {/* 轮播容器：超出隐藏，左右滑入滑出 */}
+                  <div
+                    style={{
+                      position: "relative",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      width: "100%",
+                    }}
+                  >
+                    {/* 关键帧：左右循环切换动画 */}
+                    <div
+                      key={`${item.title}-${currentPage}-${direction}`}
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        gap: '0.25rem',
+                        animation: `page1SlideIn-${direction === 1 ? "right" : "left"} 0.6s ease`,
+                      }}
+                    >
+                      {pageMembers.map((member, idx) => renderMemberCard(member, idx))}
+                    </div>
+                  </div>
+
+                  {/* 统计信息卡片 - 白色背景 */}
+                  {/* 如果是党支部委员会，显示：现有党员X名，其中预备党员X名，平均年龄X岁；现有发展党员X名，入党积极分子X名，递交入党申请书X名。
+                  如果是车间分会委员会，显示：现有班组xx个，分会会员xx名。
+                  如果是团支部委员会，显示：现有团员xx名，预备团委xx名，平均年龄xx岁；现有青工（35岁及以下）xx名。 */}
+                  <div
+                    style={{
+                      padding: "0px 0.75rem",
+                      margin: "1.25rem 1.5rem 0px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '0.75rem',
+                        lineHeight: 1.4,
+                        color: "#374151",
+                        textAlign: 'center'
+                      }}
+                    >
+                      {(() => {
+                        const stats = basicInfoNums[0] || {};
+                        switch (item.title) {
+                          case "党支部委员会":
+                            return (
+                              <>
+                                现有党员{stats.partyNum1 || 0}名，其中预备党员
+                                {stats.partyNum2 || 0}名，平均年龄
+                                {stats.partyNum3 || 0}岁；
+                                <br />
+                                现有发展党员{stats.partyNum4 || 0}名，入党积极分子
+                                {stats.partyNum5 || 0}名，递交入党申请书
+                                {stats.partyNum6 || 0}名。
+                              </>
+                            );
+                          case "车间分会委员会":
+                            return `现有班组${stats.cheNum1 || 0}个，分会会员${stats.cheNum2 || 0}名。`;
+                          case "团支部委员会":
+                            return `现有团员${stats.tuanNum1 || 0}名，预备团委${stats.tuanNum2 || 0}名，平均年龄${stats.tuanNum3 || 0}岁；现有青工（35岁及以下）${stats.tuanNum4 || 0}名。`;
+                          default:
+                            return "";
+                        }
+                      })()}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </>
         )}
       </div>
+
+      {/* 注入轮播动画关键帧：左/右滑入 */}
+      <style>{`
+        @keyframes page1SlideIn-right {
+          0% { opacity: 0; transform: translateX(100%); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes page1SlideIn-left {
+          0% { opacity: 0; transform: translateX(-100%); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 };
