@@ -220,7 +220,6 @@ const Navbar: React.FC<{ onCollapseChange?: (collapsed: boolean) => void }> = ({
   }, [])
 
   const menuItems = [
-    { key: '/home', label: '数据宣传屏' },
     { key: '/party-basic', label: '基本情况管理' },
     { key: '/party-evaluation', label: '评议管理' },
     { key: '/party-branch-evaluation', label: '党小组评议管理' },
@@ -247,7 +246,7 @@ const Navbar: React.FC<{ onCollapseChange?: (collapsed: boolean) => void }> = ({
   }
 
   const handleLogoClick = () => {
-    navigate('/home')
+    navigate('/party-basic')
   }
 
   // 获取当前选中的菜单项

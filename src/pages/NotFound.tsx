@@ -2,7 +2,6 @@ import React from 'react'
 import { Button, Typography } from 'antd'
 import { HomeOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 const { Title, Paragraph } = Typography
@@ -179,7 +178,6 @@ const ActionButtons = styled.div`
 `
 
 const NotFound: React.FC = () => {
-  const { t } = useTranslation()
   const navigate = useNavigate()
 
   return (
@@ -195,7 +193,7 @@ const NotFound: React.FC = () => {
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text'
         }}>
-          {t('notFound.title')}
+          当前页面不存在或已被删除
         </Title>
         <Paragraph style={{
           fontSize: '1.1rem',
@@ -204,26 +202,26 @@ const NotFound: React.FC = () => {
           maxWidth: '400px',
           margin: '0 auto 32px'
         }}>
-          {t('notFound.description')}
+          请联系管理员处理
         </Paragraph>
 
         <ActionButtons>
           <Button
             type="primary"
             icon={<HomeOutlined />}
-            onClick={() => navigate('/home')}
+            onClick={() => navigate('/party-basic')}
             style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               border: 'none'
             }}
           >
-            {t('notFound.backHomeBtn')}
+            返回基本情况管理页
           </Button>
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
           >
-            {t('common.back')}
+            返回上一页
           </Button>
         </ActionButtons>
       </NotFoundCard>

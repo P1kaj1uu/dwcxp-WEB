@@ -260,7 +260,7 @@ const Login: React.FC = () => {
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userInfo', JSON.stringify(res.data.data))
         message.success("登录成功")
-        navigate('/home')
+        navigate('/party-basic')
       }
     } catch (error: any) {
       console.error('Login error:', error)
